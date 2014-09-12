@@ -1,0 +1,5 @@
+src/reasonfx/parsers/*.java
+src/reasonfx/parsers/*.tokens
+nbproject/private
+build
+dist
