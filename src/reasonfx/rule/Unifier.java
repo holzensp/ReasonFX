@@ -5,32 +5,32 @@
  */
 package reasonfx.rule;
 
-import java.util.Map.Entry;
-import java.util.TreeMap;
+import java.util.Collection;
 
 /**
  *
  * @author holzensp
  */
-public class Unifier extends TreeMap<RuleInstanceVariable, Term> implements PrettyPrintable {
-    @Override public String toString() { return show(); }
+public class Unifier implements PrettyPrintable {
+    public final Collection<RuleInstanceVariable> bnds;
     
+    public Unifier(Collection<RuleInstanceVariable> bs) { bnds = bs; }
+    
+    @Override public String toString() { return dbgString(); }
+
     @Override
     public void prettyPrint(StringBuilder result, int prec, boolean debugging) {
-        if(size() == 0) {
-            result.append("\u2205");
+        if(bnds.isEmpty()) {
+            result.appendCodePoint(0x2205);
         } else {
             result.append('{');
             String glue = "";
-            for(Entry<RuleInstanceVariable,Term> e : entrySet()) {
+            for(RuleInstanceVariable v : bnds) {
                 result.append(glue);
-                e.getKey().prettyPrint(result, prec, debugging);
-                result.append(" => ");
-                e.getValue().prettyPrint(result, prec, debugging);
+                v.prettyPrint(result, prec, debugging);
                 glue = ", ";
             }
             result.append('}');
         }
     }
-    
 }

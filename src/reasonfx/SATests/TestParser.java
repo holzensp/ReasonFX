@@ -6,7 +6,6 @@
 
 package reasonfx.SATests;
 
-import java.util.Map.Entry;
 import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.logging.Level;
@@ -21,11 +20,13 @@ import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
 
 import reasonfx.parsers.LogicParser;
+import reasonfx.rule.GivenImpl;
+import reasonfx.rule.Rule;
 import reasonfx.rule.RuleInstance;
-import reasonfx.rule.RuleInstanceVariable;
 import reasonfx.rule.Term;
 import reasonfx.rule.UnificationException;
 import reasonfx.rule.Unifier;
+import reasonfx.rule.Wanted;
 
 /**
  *
@@ -67,19 +68,9 @@ public class TestParser extends Application {
                 j++;
             }
             try {
-                Unifier unifier = new Unifier();
-                tests[i][0].unify(unifier,Objects.requireNonNull(tests[i][1]));
-                StringBuilder b = new StringBuilder("Yes, with ");
-                String glue = "{";
-                for(Entry<RuleInstanceVariable, Term> p : unifier.entrySet()) {
-                    b.append(glue);
-                    b.append(p.getKey().show());
-                    b.append("->");
-                    b.append(p.getValue().show());
-                    glue = ", ";
-                }
-                b.append("}");
-                results[i] = b.toString();
+                GivenImpl g = new GivenImpl(Objects.requireNonNull(tests[i][1]));
+                tests[i][0].unify(g, tests[i][1]);
+                results[i] = "Yes, with " + new Unifier(g.getBoundVariables());
             } catch (UnificationException ex) {
                 Logger.getLogger(TestParser.class.getName()).log(Level.FINE, null, ex);
                 results[i] = "false";
@@ -108,6 +99,18 @@ public class TestParser extends Application {
         scene.addEventFilter(KeyEvent.ANY, (KeyEvent event) -> {
             primaryStage.close();
         });
+        
+        Rule r = LogicParser.parse(LogicParser::dedrule,"@x^@y |- @x").r;
+        System.out.println(r.toString());
+        RuleInstance r1 = new RuleInstance(r), r2 = new RuleInstance(r), r3 = new RuleInstance(r);
+        
+        System.out.println(String.format("INIT:  %s  |  %s  |  %s  ", r1, r2, r3));
+        r1.unify(() -> r2.getPremisses().iterator().next());
+        System.out.println(String.format("1->2:  %s  |  %s  |  %s  ", r1, r2, r3));
+        r2.unify(() -> r3.getPremisses().iterator().next());
+        System.out.println(String.format("2->3:  %s  |  %s  |  %s  ", r1, r2, r3));
+        r1.disconnect();
+        System.out.println(String.format("1/>2:  %s  |  %s  |  %s  ", r1, r2, r3));
         
         primaryStage.setTitle("First Order Logic Parser Result");
         primaryStage.setScene(scene);

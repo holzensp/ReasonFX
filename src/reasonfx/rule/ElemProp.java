@@ -8,7 +8,6 @@ package reasonfx.rule;
 
 import java.util.Collection;
 import java.util.HashMap;
-import java.util.Map;
 import reasonfx.util.EmptyCollection;
 
 /**
@@ -32,7 +31,7 @@ public class ElemProp extends ConcreteVariable {
     }
 
     @Override
-    public void unify(reasonfx.rule.Unifier unifier, Term wanted)
+    public void unify(Given unifier, Term wanted)
             throws UnificationException {
         if(!
             (  wanted instanceof ElemProp
@@ -44,5 +43,4 @@ public class ElemProp extends ConcreteVariable {
     @Override public String toString() { return dbgString(); }
     @Override public Collection<Term> children() { return new EmptyCollection(); }
     @Override public Term copyWithChildren(Collection<Term> chlds) { return this; }
-
 }

@@ -13,6 +13,7 @@ import java.util.Collection;
  * @author holzensp
  */
 public interface Entailment {
+    public void renumber(int prettyID);
     public Collection<Term> getPremisses();
     public Term getConclusion();
 }

@@ -10,9 +10,9 @@ package reasonfx.rule;
  *
  * @author holzensp
  */
-public class DoubleBindingException extends Exception {
+public class DoubleBindingException extends RuntimeException {
 
-    DoubleBindingException(RuleInstanceVariable aThis, Term binding, Term t, ProofStep dep) {
+    DoubleBindingException(RuleInstanceVariable aThis, Term binding, Term t, Given dep) {
         throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
     }
     

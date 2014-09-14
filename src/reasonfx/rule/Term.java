@@ -9,8 +9,8 @@ package reasonfx.rule;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.function.Function;
+import java.util.stream.Stream;
 
 /**
  *
@@ -18,13 +18,18 @@ import java.util.function.Function;
  */
 public interface Term extends PrettyPrintable {
     /* Analysis methods */
-    public void unify(Unifier unifier, Term wanted) throws UnificationException;
+    public void unify(Given unifier, Term wanted) throws UnificationException;
     public default <T extends Term> void collect(Collection<T> ts, Class<T> cls) {
         if(cls.isAssignableFrom(this.getClass()))
             ts.add(cls.cast(this));
         else
             children().stream().forEach(c -> c.collect(ts, cls));
     }
+    
+    public default Stream<Term> postOrder() {
+        return Stream.concat(children().stream().flatMap(Term::postOrder), Stream.of(this));
+    }
+    
     /* For copying of terms */
     public Collection<Term> children();
     public Term copyWithChildren(Collection<Term> chlds);

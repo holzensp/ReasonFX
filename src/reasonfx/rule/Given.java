@@ -6,9 +6,6 @@
 
 package reasonfx.rule;
 
-import java.util.Map;
-import java.util.TreeMap;
-
 /**
  *
  * @author holzensp
@@ -16,18 +13,18 @@ import java.util.TreeMap;
 public interface Given {
     public Term asTerm();
     
-    public default boolean unify(Wanted wanted) throws DoubleBindingException {
+    public default boolean unify(Wanted wanted) {
         final Term w = wanted.asTerm();
-        final Unifier unifier = new Unifier();
         try {
-            this.asTerm().unify(unifier, w);
+            this.asTerm().unify(this, w);
         } catch(UnificationException e) {
             return false;
         }
-        ProofStep result = new ProofStep(wanted, this);
-        for(RuleInstanceVariable v : unifier.keySet()) {
-            v.bind(unifier.get(v), result);
-        }
         return true;
     }
+
+    public void register(RuleInstanceVariable v);
+    public void register(Given g);
+    
+    public void reUnify();
 }

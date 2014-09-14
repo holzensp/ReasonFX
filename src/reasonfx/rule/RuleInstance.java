@@ -6,21 +6,22 @@
 
 package reasonfx.rule;
 
-import java.util.function.Function;
+import java.util.stream.Collectors;
 
 /**
  *
  * @author holzensp
  */
 public class RuleInstance extends EntailmentBase {
-    private static final Function<RuleVariable,RuleInstanceVariable> newVar = RuleInstanceVariable::new;
     public RuleInstance(Rule bluePrint) {
-        super( (Term) bluePrint.getConclusion().copyWith(newVar, RuleVariable.class)
-             , new Term[bluePrint.getPremisses().size()]);
-        int i = 0;
-        
-        for(Term t : bluePrint.getPremisses()) {
-            this.premisses[i++] = (Term) t.copyWith(newVar, RuleVariable.class);
-        }
+        super(
+            bluePrint.getConclusion()
+                .copyWith(RuleInstanceVariable::new, RuleVariable.class),
+            bluePrint.getPremisses().stream()
+                .map(t -> t.copyWith(RuleInstanceVariable::new,RuleVariable.class))
+                .collect(Collectors.toList())
+        );
     }
+    
+    @Override public String toString() { return show(); }
 }

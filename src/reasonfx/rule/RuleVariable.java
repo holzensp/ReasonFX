@@ -13,7 +13,7 @@ import reasonfx.util.EmptyCollection;
  *
  * @author holzensp
  */
-public class RuleVariable extends Variable implements Comparable {
+public class RuleVariable extends Variable implements Comparable<RuleVariable> {
     private static final int varCodePoints[] = "φψ".codePoints().toArray();
     private static final int DigitOffset = 0x2080 - Character.codePointAt("0",0);
     
@@ -23,7 +23,7 @@ public class RuleVariable extends Variable implements Comparable {
         if(id >= varCodePoints.length) {
             String.valueOf(id / varCodePoints.length)
                 .codePoints()
-                .map(i -> { return DigitOffset + i; })
+                .map(i -> DigitOffset + i)
                 .forEach(b::appendCodePoint);
         }
         return b.toString();
@@ -33,7 +33,7 @@ public class RuleVariable extends Variable implements Comparable {
     protected RuleVariable(RuleVariable that) { this(that.getID()); }
 
     @Override
-    public void unify(reasonfx.rule.Unifier unifier, Term wanted) throws UnificationException {
+    public void unify(Given unifier, Term wanted) throws UnificationException {
         throw new UnsupportedOperationException("RuleVariables may *never* be unified.");
     }
 
@@ -46,11 +46,7 @@ public class RuleVariable extends Variable implements Comparable {
     @Override public Term copyWithChildren(Collection<Term> chlds) { return new RuleVariable(this); }
 
     @Override
-    public int compareTo(Object o) {
-        Class thisClass = this.getClass();
-        if(thisClass.isAssignableFrom(o.getClass()))
-            return Integer.compare(this.getID(), ((RuleVariable) o).getID());
-        else
-            return -1;
+    public int compareTo(RuleVariable that) {
+        return Integer.compare(this.getID(), that.getID());
     }
 }

@@ -27,14 +27,14 @@ public class Rule extends EntailmentBase {
     public Rule(Entailment ent) {
         super(ent.getConclusion(), ent.getPremisses().toArray(new Term[ent.getPremisses().size()]));
         Set<RuleVariable> rvs = new HashSet();
-        conclusion.collect(rvs,RuleVariable.class);
-        for(Term t : premisses)
-            t.collect(rvs, RuleVariable.class);
+        getConclusion().collect(rvs,RuleVariable.class);
+        getPremisses().stream().forEach(t ->
+            t.collect(rvs, RuleVariable.class) );
         varCnt = rvs.size();
     }
     
     public Rule(Rule that) {
-        super(that.conclusion, that.premisses);
+        super(that.getConclusion(), that.getPremisses());
         this.varCnt = that.varCnt;
     }
     

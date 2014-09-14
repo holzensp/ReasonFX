@@ -9,7 +9,6 @@ package reasonfx.rule;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -51,7 +50,7 @@ public class Sentence implements Term {
     }
     
     @Override
-    public void unify(reasonfx.rule.Unifier unifier, Term wanted) throws UnificationException {
+    public void unify(Given unifier, Term wanted) throws UnificationException {
         UnificationException e = new UnificationException(this, wanted);
         if(!(wanted instanceof Sentence)) throw e;
         Sentence that = (Sentence) wanted;
