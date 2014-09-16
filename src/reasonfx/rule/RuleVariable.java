@@ -16,6 +16,9 @@ import reasonfx.util.EmptyCollection;
 public class RuleVariable extends Variable implements Comparable<RuleVariable> {
     private static final int varCodePoints[] = "φψ".codePoints().toArray();
     private static final int DigitOffset = 0x2080 - Character.codePointAt("0",0);
+    private static int UniqueIDs = 0;
+    
+    protected final int ruleLocalID;
     
     protected static String mkString(final int id) {
         StringBuilder b = new StringBuilder()
@@ -29,7 +32,7 @@ public class RuleVariable extends Variable implements Comparable<RuleVariable> {
         return b.toString();
     }
 
-    public    RuleVariable(int varID)         { super(varID); }
+    public    RuleVariable(int varID)         { super(UniqueIDs++); ruleLocalID = varID; }
     protected RuleVariable(RuleVariable that) { this(that.getID()); }
 
     @Override

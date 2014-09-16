@@ -15,7 +15,8 @@ import javafx.beans.property.SimpleIntegerProperty;
  * @author holzensp
  */
 public class RuleInstanceVariable extends RuleVariable {
-    private final IntegerProperty prettyID = new SimpleIntegerProperty();
+    private int prettyID = -1;
+    private RuleInstance parent;
     private class Binding {
         public final Term  value;
         public final Given origin;
@@ -25,11 +26,17 @@ public class RuleInstanceVariable extends RuleVariable {
     
     public RuleInstanceVariable(RuleVariable v) {
         super(v);
-        prettyID.set(getID());
+        prettyID = ruleLocalID;
     }
-
-    public void setPrettyID(int id) { prettyID.set(id); }
-    public void unsetPrettyID() { prettyID.set(getID()); }
+    
+    protected void setParent(RuleInstance i) {
+        if(parent != null)
+            throw new NullPointerException("Parent set when it WASN'T null");
+        parent = i;
+    }
+    
+    public void setPrettyID(int id) { prettyID = id; }
+    public void unsetPrettyID() { prettyID = ruleLocalID; }
 
     public void    unbind()     { binding = null; }
     public boolean isBound()    { return null != binding; }
@@ -40,7 +47,7 @@ public class RuleInstanceVariable extends RuleVariable {
         if(debugging) {
             if(isBound()) result.append('(');
             result
-                .append(mkString(prettyID.get()))
+                .append(mkString(prettyID))
                 .append('[').append(String.valueOf(getID())).append(']');
             if(isBound()) {
                 result.append(" => ");
@@ -51,7 +58,7 @@ public class RuleInstanceVariable extends RuleVariable {
             if(isBound())
                 binding.value.prettyPrint(result,prec,debugging);
             else {
-                result.append(mkString(prettyID.get()));
+                result.append(mkString(prettyID));
             }
         }
     }
@@ -61,6 +68,7 @@ public class RuleInstanceVariable extends RuleVariable {
         if(!isBound()) {
             unifier.register(this);
             binding = new Binding(wanted, unifier);
+            System.out.println("Binding " + this.dbgString() + " to " + wanted.dbgString());
         } else {
             binding.origin.register(unifier);
             binding.value.unify(unifier, wanted);

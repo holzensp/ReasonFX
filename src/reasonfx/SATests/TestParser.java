@@ -10,6 +10,7 @@ import java.util.Objects;
 import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import java.util.stream.Stream;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
 import javafx.geometry.Orientation;
@@ -23,10 +24,10 @@ import reasonfx.parsers.LogicParser;
 import reasonfx.rule.GivenImpl;
 import reasonfx.rule.Rule;
 import reasonfx.rule.RuleInstance;
+import reasonfx.rule.RuleInstanceVariable;
 import reasonfx.rule.Term;
 import reasonfx.rule.UnificationException;
 import reasonfx.rule.Unifier;
-import reasonfx.rule.Wanted;
 
 /**
  *
@@ -36,6 +37,11 @@ public class TestParser extends Application {
     static String inp = "UNDEFINED";
     private static final Term[][] tests;
     private static final String[] results;
+    private static final Rule andEL = LogicParser.parse(LogicParser::dedrule,"@x^@y |- @x").r;
+    private static final RuleInstance rs[] = {
+        RuleInstance.instantiate(andEL),
+        RuleInstance.instantiate(andEL),
+        RuleInstance.instantiate(andEL) };
     
     static {
         String[][] inps =
@@ -61,7 +67,7 @@ public class TestParser extends Application {
             for(String in : pair) {
                 System.err.println(String.format("(%d,%d) %s", i, j, in));
                 if(in.contains("@")) {
-                    tests[i][j] = new RuleInstance(LogicParser.parse(LogicParser::dedrule,pair[j]).r).getConclusion();
+                    tests[i][j] = RuleInstance.instantiate(LogicParser.parse(LogicParser::dedrule,pair[j]).r).getConclusion();
                 } else {
                     tests[i][j] = LogicParser.parse(LogicParser::proposition,pair[j]).t;
                 }
@@ -77,6 +83,19 @@ public class TestParser extends Application {
             }
             i++;
         }
+    }
+    
+    public void reportRuleInstances(String msg) {
+        System.out.println(
+            String.format(msg + ":  %s  |  %s  |  %s  ", rs[0], rs[1], rs[2])
+        );
+        Stream.concat(
+            rs[0].collect(RuleInstanceVariable.class),
+          Stream.concat(
+            rs[1].collect(RuleInstanceVariable.class),
+            rs[2].collect(RuleInstanceVariable.class)
+          )
+        ).distinct().filter(RuleInstanceVariable::isBound).forEach(v -> System.out.println(" " + v.dbgString()));
     }
     
     @Override
@@ -100,17 +119,17 @@ public class TestParser extends Application {
             primaryStage.close();
         });
         
-        Rule r = LogicParser.parse(LogicParser::dedrule,"@x^@y |- @x").r;
-        System.out.println(r.toString());
-        RuleInstance r1 = new RuleInstance(r), r2 = new RuleInstance(r), r3 = new RuleInstance(r);
+        System.out.println(andEL.dbgString());
         
-        System.out.println(String.format("INIT:  %s  |  %s  |  %s  ", r1, r2, r3));
-        r1.unify(() -> r2.getPremisses().iterator().next());
-        System.out.println(String.format("1->2:  %s  |  %s  |  %s  ", r1, r2, r3));
-        r2.unify(() -> r3.getPremisses().iterator().next());
-        System.out.println(String.format("2->3:  %s  |  %s  |  %s  ", r1, r2, r3));
-        r1.disconnect();
-        System.out.println(String.format("1/>2:  %s  |  %s  |  %s  ", r1, r2, r3));
+        reportRuleInstances("INIT");
+        rs[0].unify(() -> rs[1].getPremisses().iterator().next());
+        rs[1].renumber(rs[0].renumber(0));
+        reportRuleInstances("1->2");
+        rs[1].unify(() -> rs[2].getPremisses().iterator().next());
+        rs[2].renumber(rs[1].renumber(rs[0].renumber(0)));
+        reportRuleInstances("2->3");
+        rs[0].disconnect();
+        reportRuleInstances("1/>2");
         
         primaryStage.setTitle("First Order Logic Parser Result");
         primaryStage.setScene(scene);

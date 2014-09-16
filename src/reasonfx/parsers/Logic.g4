@@ -75,7 +75,7 @@ options{
 }
 
 dedrule returns [Rule r]
-@init{LogicParser.parseRules = true;}
+@init{LogicParser.parseRules = true; rvs.clear();}
     : entailment EOF {$r = new Rule($entailment.e);}
     ;
 

@@ -17,7 +17,7 @@ interface PrettyPrintable {
     }
     public default String show() {
         StringBuilder b = new StringBuilder();
-        this.prettyPrint(b, -1, false);
+        this.prettyPrint(b, -1, true);
         return b.toString();
     }
     public void prettyPrint(StringBuilder result, int prec, boolean debugging);

@@ -6,11 +6,12 @@
 
 package reasonfx.rule;
 
-import java.util.HashSet;
+import java.util.Collection;
 import java.util.Map;
-import java.util.Set;
 import java.util.TreeMap;
 import java.util.function.Function;
+import java.util.stream.Collectors;
+import java.util.stream.Stream;
 
 /**
  *
@@ -18,28 +19,23 @@ import java.util.function.Function;
  */
 public class Rule extends EntailmentBase {
     private final int varCnt;
-    
-    private Rule(int v, Term c, Term... ps) {
+
+    private Rule(int v, Term c, Collection<Term> ps) {
         super(c,ps);
         varCnt = v;
     }
     
     public Rule(Entailment ent) {
-        super(ent.getConclusion(), ent.getPremisses().toArray(new Term[ent.getPremisses().size()]));
-        Set<RuleVariable> rvs = new HashSet();
-        getConclusion().collect(rvs,RuleVariable.class);
-        getPremisses().stream().forEach(t ->
-            t.collect(rvs, RuleVariable.class) );
-        varCnt = rvs.size();
+        super(ent.getConclusion(), ent.getPremisses());
+        varCnt = (int) Stream.concat(
+                getConclusion().collect(RuleVariable.class),
+                getPremisses().stream().flatMap(t -> t.collect(RuleVariable.class))
+            ).count();
     }
     
     public Rule(Rule that) {
         super(that.getConclusion(), that.getPremisses());
         this.varCnt = that.varCnt;
-    }
-    
-    protected static Rule instantiateFrom(Entailment ent) {
-        return new Rule(0,ent.getConclusion(), ent.getPremisses().toArray(new Term[ent.getPremisses().size()]));
     }
     
     public static Rule abstractFrom(Entailment ent) {
@@ -50,13 +46,10 @@ public class Rule extends EntailmentBase {
             }
             return lut.get(c);
         };
-        Term c = (Term) ent.getConclusion().copyWith(f, ConcreteVariable.class);
-        
-        int length = ent.getPremisses().size();
-        Term[] ps = new Term[length];
-        int i = 0;
-        for(Term t : ent.getPremisses())
-            ps[i++] = (Term) t.copyWith(f, ConcreteVariable.class);
-        return new Rule(lut.size(), c, ps);
+
+        return new Rule(lut.size(),
+                ent.getConclusion().copyWith(f, ConcreteVariable.class),
+                ent.getPremisses().stream().map(t -> t.copyWith(f,ConcreteVariable.class)).collect(Collectors.toList())
+            );
     }
 }

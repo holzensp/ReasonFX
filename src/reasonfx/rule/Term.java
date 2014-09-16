@@ -19,15 +19,21 @@ import java.util.stream.Stream;
 public interface Term extends PrettyPrintable {
     /* Analysis methods */
     public void unify(Given unifier, Term wanted) throws UnificationException;
-    public default <T extends Term> void collect(Collection<T> ts, Class<T> cls) {
-        if(cls.isAssignableFrom(this.getClass()))
-            ts.add(cls.cast(this));
-        else
-            children().stream().forEach(c -> c.collect(ts, cls));
+    
+    public default <T> Stream<T> collect(Class<T> cls) {
+        Stream<T> chlds = children().stream().flatMap(t -> t.collect(cls));
+        Stream<T> res = cls.isAssignableFrom(this.getClass())
+                ? Stream.concat(Stream.of((T)this), chlds)
+                : chlds;
+        return res.distinct();
     }
     
     public default Stream<Term> postOrder() {
         return Stream.concat(children().stream().flatMap(Term::postOrder), Stream.of(this));
+    }
+    
+    public default Stream<Term> preOrder() {
+        return Stream.concat(Stream.of(this), children().stream().flatMap(Term::preOrder));
     }
     
     /* For copying of terms */

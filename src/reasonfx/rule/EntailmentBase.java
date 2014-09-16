@@ -8,7 +8,7 @@ package reasonfx.rule;
 
 import java.util.Arrays;
 import java.util.Collection;
-import java.util.function.Consumer;
+import java.util.Iterator;
 
 /**
  *
@@ -29,7 +29,7 @@ public class EntailmentBase extends GivenImpl implements Entailment, PrettyPrint
     @Override public Collection<Term> getPremisses() { return premisses; }
     @Override public Term getConclusion()            { return asTerm(); }
 
-    @Override public String toString() { return dbgString(); }
+    @Override public String toString() { return show(); }
     @Override
     public void prettyPrint(StringBuilder result, int prec, boolean debugging) {
         String glue = "";
@@ -43,18 +43,14 @@ public class EntailmentBase extends GivenImpl implements Entailment, PrettyPrint
     }
 
     @Override
-    public void renumber(int prettyID) {
-        int i = 0;
-        for(Term r : getPremisses()) {
-            r.postOrder().forEach((Consumer<Term>) (t -> {
-                if(RuleInstanceVariable.class.isAssignableFrom(t.getClass())) {
-                    RuleInstanceVariable v = (RuleInstanceVariable) t;
-                    if(!v.isBound()) {
-                        v.setPrettyID(v.getID()+prettyID);
-                    } 
-                }
-            }));
-        }
+    public int renumber(int prettyID) {
+        Iterator<RuleInstanceVariable> vs = collect(RuleInstanceVariable.class)
+                .filter(v -> !v.isBound())
+                .distinct()
+                .iterator();
+        while(vs.hasNext())
+            vs.next().setPrettyID(prettyID++);
+        return prettyID;
     }
 
 }
