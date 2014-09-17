@@ -6,10 +6,37 @@
 
 package reasonfx.rule;
 
+import javafx.beans.property.SimpleObjectProperty;
+
 /**
  *
  * @author holzensp
  */
-public interface Wanted {
-    public Term asTerm();
+public class Wanted extends SimpleObjectProperty<Given> {
+    private final Term term;
+    
+    public Wanted(Term t) { super(null); term = t; }
+    
+    public Term asTerm(){ return term; }
+    
+    public boolean isSatisfied() { return null != get(); }
+    
+    @Override public String toString() { return isSatisfied() ? get().toString() : term.toString(); }
+    
+    public boolean satsify(Given g) {
+        if(g.unify(this)) {
+            set(g);
+            return true;
+        }
+        return false;
+    }
+    
+    public void disconnect() {
+        if(isSatisfied()) {
+            Given g = get();
+            set(null);
+            g.disconnect();
+        }
+    }
+
 }

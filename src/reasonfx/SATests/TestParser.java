@@ -7,7 +7,6 @@
 package reasonfx.SATests;
 
 import java.util.Objects;
-import java.util.function.Supplier;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Stream;
@@ -28,6 +27,7 @@ import reasonfx.rule.RuleInstanceVariable;
 import reasonfx.rule.Term;
 import reasonfx.rule.UnificationException;
 import reasonfx.rule.Unifier;
+import reasonfx.rule.Wanted;
 
 /**
  *
@@ -122,10 +122,10 @@ public class TestParser extends Application {
         System.out.println(andEL.dbgString());
         
         reportRuleInstances("INIT");
-        rs[0].unify(() -> rs[1].getPremisses().iterator().next());
+        rs[0].unify(new Wanted(rs[1].getPremisses().iterator().next()));
         rs[1].renumber(rs[0].renumber(0));
         reportRuleInstances("1->2");
-        rs[1].unify(() -> rs[2].getPremisses().iterator().next());
+        rs[1].unify(new Wanted(rs[2].getPremisses().iterator().next()));
         rs[2].renumber(rs[1].renumber(rs[0].renumber(0)));
         reportRuleInstances("2->3");
         rs[0].disconnect();
@@ -143,8 +143,5 @@ public class TestParser extends Application {
         launch(new String[0]);
     }
     
-    public static <T> T callParser(Supplier<T> s, Class<T> c) {
-        return s.get();
-    }
     
 }

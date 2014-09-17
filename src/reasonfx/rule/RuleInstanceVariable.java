@@ -7,8 +7,6 @@
 package reasonfx.rule;
 
 import java.util.Collection;
-import javafx.beans.property.IntegerProperty;
-import javafx.beans.property.SimpleIntegerProperty;
 
 /**
  *

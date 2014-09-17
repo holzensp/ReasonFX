@@ -7,12 +7,16 @@ package reasonfx.rule;
 
 import java.util.ArrayList;
 import java.util.Collection;
+import javafx.beans.InvalidationListener;
+import javafx.beans.property.SimpleStringProperty;
+import javafx.beans.value.ChangeListener;
 
 /**
  *
  * @author holzensp
  */
 public class GivenImpl implements Given {
+    private final SimpleStringProperty stringProp = new SimpleStringProperty();
     private final Term given;
     private Wanted satisfying;
     private Collection<Given> deps = new ArrayList();
@@ -20,6 +24,7 @@ public class GivenImpl implements Given {
 
     public GivenImpl(Term t) {
         given = t;
+        stringProp.set(given.toString());
     }
     
     @Override
@@ -27,6 +32,7 @@ public class GivenImpl implements Given {
         return satisfying == null ? given : satisfying.asTerm();
     }
     
+    @Override
     public void disconnect() {
         if(satisfying == null) return;
         satisfying = null;
@@ -36,6 +42,7 @@ public class GivenImpl implements Given {
         vars = new ArrayList();
         vs.stream().forEach(RuleInstanceVariable::unbind);
         ds.stream().forEach(Given::reUnify);
+        stringProp.set(given.toString());
     }
     
     @Override
@@ -46,6 +53,7 @@ public class GivenImpl implements Given {
         } else {
             disconnect();
         }
+        stringProp.set(given.toString());
         return res;
     }
 
@@ -54,5 +62,10 @@ public class GivenImpl implements Given {
     @Override public void register(Given g)                { deps.add(g); }
 
     public Collection<RuleInstanceVariable> getBoundVariables() { return vars; }
-    
+
+    @Override public void addListener(   ChangeListener<? super String> listener) { stringProp.addListener(   listener); }
+    @Override public void removeListener(ChangeListener<? super String> listener) { stringProp.removeListener(listener); }
+    @Override public void addListener(   InvalidationListener           listener) { stringProp.addListener(   listener); }
+    @Override public void removeListener(InvalidationListener           listener) { stringProp.removeListener(listener); }
+    @Override public String getValue() { return stringProp.getValue(); }
 }

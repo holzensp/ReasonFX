@@ -6,11 +6,13 @@
 
 package reasonfx.rule;
 
+import javafx.beans.value.ObservableValue;
+
 /**
  *
  * @author holzensp
  */
-public interface Given {
+public interface Given extends ObservableValue<String> {
     public Term asTerm();
     
     public default boolean unify(Wanted wanted) {
@@ -25,6 +27,8 @@ public interface Given {
 
     public void register(RuleInstanceVariable v);
     public void register(Given g);
+
+    public void disconnect();
     
     public void reUnify();
 }
