@@ -29,7 +29,7 @@ public class GivenView extends Pane {
         super();
         given = r;
         Label lbl = new Label();
-        lbl.textProperty().bind(given);
+        lbl.textProperty().bind(given.stringProperty());
         FlowPane wanteds = new FlowPane(Orientation.HORIZONTAL);
         this.getChildren().add(
             new FlowPane(Orientation.VERTICAL, wanteds, new Separator(), lbl));

@@ -14,7 +14,7 @@ import java.util.Iterator;
  *
  * @author holzensp
  */
-public class EntailmentBase extends GivenImpl implements Entailment, PrettyPrintable {
+public class EntailmentBase extends Given implements Entailment, PrettyPrintable {
     protected final Collection<Term> premisses;
     
     public EntailmentBase(Term c, Term... ps) {
@@ -45,7 +45,7 @@ public class EntailmentBase extends GivenImpl implements Entailment, PrettyPrint
     @Override
     public int renumber(int prettyID) {
         Iterator<RuleInstanceVariable> vs = collect(RuleInstanceVariable.class)
-                .filter(v -> !v.isBound())
+                .filter(v -> !v.isUnified())
                 .distinct()
                 .iterator();
         while(vs.hasNext())

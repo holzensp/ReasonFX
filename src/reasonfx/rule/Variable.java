@@ -6,13 +6,23 @@
 
 package reasonfx.rule;
 
+import java.util.Collection;
+import reasonfx.util.EmptyCollection;
+
 /**
  *
  * @author holzensp
+ * @param <T>
  */
-public abstract class Variable implements Term {
-    private final int varID;
+public interface Variable<T extends Variable> extends Term, Comparable<T> {
+    public int getID();
 
-    protected Variable(int id) { varID = id; }
-    public int getID() { return varID; }
+    @Override
+    public default int compareTo(T that) {
+        return Integer.compare(this.getID(), that.getID());
+    }
+    
+    // default copying from Term; Variables really can't be copied; they're unique
+    @Override public default Collection<Term> children() { return new EmptyCollection(); }
+    @Override public default Term copyWithChildren(Collection<Term> chlds) { return this; }
 }

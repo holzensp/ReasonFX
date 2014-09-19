@@ -6,13 +6,25 @@
 
 package reasonfx.rule;
 
-import java.util.Collection;
+import javafx.beans.InvalidationListener;
+import javafx.beans.Observable;
+import javafx.beans.property.SimpleObjectProperty;
+import javafx.beans.value.ChangeListener;
+import javafx.beans.value.ObservableValue;
 
 /**
  *
  * @author holzensp
  */
-public class RuleInstanceVariable extends RuleVariable {
+public class RuleInstanceVariable
+        extends SimpleObjectProperty<Term>
+        implements UnificationVariable<RuleInstanceVariable> {
+
+    private static int UniqueID = 0;
+    
+    private final RuleVariable bluePrint;
+    private final int          varID;
+
     private int prettyID = -1;
     private RuleInstance parent;
     private class Binding {
@@ -23,8 +35,9 @@ public class RuleInstanceVariable extends RuleVariable {
     private Binding binding = null;
     
     public RuleInstanceVariable(RuleVariable v) {
-        super(v);
-        prettyID = ruleLocalID;
+        varID     = UniqueID++;
+        bluePrint = v;
+        prettyID  = v.getRuleLocalID();
     }
     
     protected void setParent(RuleInstance i) {
@@ -33,46 +46,64 @@ public class RuleInstanceVariable extends RuleVariable {
         parent = i;
     }
     
-    public void setPrettyID(int id) { prettyID = id; }
-    public void unsetPrettyID() { prettyID = ruleLocalID; }
+    @Override public int getID() { return varID; }
 
-    public void    unbind()     { binding = null; }
-    public boolean isBound()    { return null != binding; }
+    public void setPrettyID(int id) { prettyID = id; }
+    public void unsetPrettyID() { prettyID = bluePrint.getRuleLocalID(); }
+
+    public void    ununify()    { binding = null; System.out.println("UNbinding " + this.toString()); }
+    public boolean isUnified()  { return null != binding; }
     public Term    getBinding() { return binding.value; }
     
     @Override
     public void prettyPrint(StringBuilder result, int prec, boolean debugging) {
         if(debugging) {
-            if(isBound()) result.append('(');
+            if(isUnified()) result.append('(');
             result
-                .append(mkString(prettyID))
+                .append(UnificationVariable.mkString(prettyID))
                 .append('[').append(String.valueOf(getID())).append(']');
-            if(isBound()) {
+            if(isUnified()) {
                 result.append(" => ");
                 binding.value.prettyPrint(result, -1, debugging);
                 result.append(')');
             }
         } else {
-            if(isBound())
+            if(isUnified())
                 binding.value.prettyPrint(result,prec,debugging);
             else {
-                result.append(mkString(prettyID));
+                result.append(UnificationVariable.mkString(prettyID));
             }
         }
     }
 
     @Override
     public void unify(Given unifier, Term wanted) throws UnificationException {
-        if(!isBound()) {
-            unifier.register(this);
+        if(!isUnified()) {
+            this.set(wanted);
+            unifier.addListener(new ChangeListener<Wanted>() {
+                @Override
+                public void changed(ObservableValue<? extends Wanted> prop,
+                        Wanted oldV, Wanted newV) {
+                    //We only ever want to listen to the value being *unset*
+                    assert(oldV != null && newV == null);
+                    //We no longer depend on this unifier
+                    prop.removeListener(this);
+                    RuleInstanceVariable.this.ununify();
+                }
+            });
+            //unifier.register(this);
             binding = new Binding(wanted, unifier);
             System.out.println("Binding " + this.dbgString() + " to " + wanted.dbgString());
         } else {
+            this.get().unify(unifier, wanted);
+            //unifier.addListener((Observable observable) -> {
+            //    
+            //    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
+            //});
             binding.origin.register(unifier);
             binding.value.unify(unifier, wanted);
         }
     }
     
     @Override public String toString() { return dbgString(); }
-    @Override public Term copyWithChildren(Collection<Term> chlds) { return new RuleInstanceVariable(this); }
 }

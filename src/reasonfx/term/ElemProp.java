@@ -4,19 +4,21 @@
  * and open the template in the editor.
  */
 
-package reasonfx.rule;
+package reasonfx.term;
 
-import java.util.Collection;
-import java.util.HashMap;
-import reasonfx.util.EmptyCollection;
+import java.util.Map;
+import java.util.TreeMap;
+import reasonfx.rule.ConcreteVariable;
+import reasonfx.rule.Given;
+import reasonfx.rule.Term;
+import reasonfx.rule.UnificationException;
 
 /**
  *
  * @author holzensp
  */
-public class ElemProp extends ConcreteVariable {
-    private static final HashMap<String,ElemProp> eps = new HashMap();
-    private static int idBase = 0;
+public class ElemProp extends ConcreteVariable<ElemProp> {
+    private static final Map<String,ElemProp> eps = new TreeMap();
     
     public static ElemProp getInstance(String propName) {
         if(!eps.containsKey(propName)) {
@@ -26,9 +28,7 @@ public class ElemProp extends ConcreteVariable {
         return eps.get(propName);
     }
     
-    private ElemProp(String propName) {
-        super(propName, idBase++);
-    }
+    private ElemProp(String propName) { super(propName); }
 
     @Override
     public void unify(Given unifier, Term wanted)
@@ -41,6 +41,4 @@ public class ElemProp extends ConcreteVariable {
     }
 
     @Override public String toString() { return dbgString(); }
-    @Override public Collection<Term> children() { return new EmptyCollection(); }
-    @Override public Term copyWithChildren(Collection<Term> chlds) { return this; }
 }

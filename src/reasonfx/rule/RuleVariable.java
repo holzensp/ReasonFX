@@ -6,50 +6,33 @@
 
 package reasonfx.rule;
 
-import java.util.Collection;
-import reasonfx.util.EmptyCollection;
+import javafx.beans.property.ReadOnlyStringWrapper;
 
 /**
  *
  * @author holzensp
  */
-public class RuleVariable extends Variable implements Comparable<RuleVariable> {
-    private static final int varCodePoints[] = "φψ".codePoints().toArray();
-    private static final int DigitOffset = 0x2080 - Character.codePointAt("0",0);
+public class RuleVariable implements UnificationVariable<RuleVariable> {
     private static int UniqueIDs = 0;
-    
-    protected final int ruleLocalID;
-    
-    protected static String mkString(final int id) {
-        StringBuilder b = new StringBuilder()
-            .appendCodePoint(varCodePoints[id % varCodePoints.length]);
-        if(id >= varCodePoints.length) {
-            String.valueOf(id / varCodePoints.length)
-                .codePoints()
-                .map(i -> DigitOffset + i)
-                .forEach(b::appendCodePoint);
-        }
-        return b.toString();
+    private final int ruleLocalID;
+    private final int varID;
+    private final ReadOnlyStringWrapper pretty;
+
+    public RuleVariable(int ruleID) {
+        varID = UniqueIDs++;
+        ruleLocalID = ruleID;
+        pretty = new ReadOnlyStringWrapper(UnificationVariable.mkString(ruleID));
     }
 
-    public    RuleVariable(int varID)         { super(UniqueIDs++); ruleLocalID = varID; }
-    protected RuleVariable(RuleVariable that) { this(that.getID()); }
+    @Override public int getID() { return varID; }
+    public int getRuleLocalID()  { return ruleLocalID; }
 
     @Override
     public void unify(Given unifier, Term wanted) throws UnificationException {
         throw new UnsupportedOperationException("RuleVariables may *never* be unified.");
     }
-
     @Override
     public void prettyPrint(StringBuilder result, int prec, boolean debugging) {
-        result.append(mkString(this.getID()));
-    }
-
-    @Override public Collection<Term> children() { return new EmptyCollection(); }
-    @Override public Term copyWithChildren(Collection<Term> chlds) { return new RuleVariable(this); }
-
-    @Override
-    public int compareTo(RuleVariable that) {
-        return Integer.compare(this.getID(), that.getID());
+        result.append(UnificationVariable.mkString(this.getID()));
     }
 }

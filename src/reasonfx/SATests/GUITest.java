@@ -64,6 +64,7 @@ public class GUITest extends Application {
     }
     
     public static void setActiveWantedView(WantedView view) {
+        /*
         if(null != activeWanted) {
             activeWanted.setEffect(null);
         }
@@ -75,6 +76,7 @@ public class GUITest extends Application {
             activeWanted = view;
             view.setEffect(fx);
         }
+        */
     }
 
     @Override
@@ -140,7 +142,7 @@ public class GUITest extends Application {
      * @param args the command line arguments
      */
     public static void main(String[] args) {
-        launch(new String[0]);
+        launch(args);
     }
     
     

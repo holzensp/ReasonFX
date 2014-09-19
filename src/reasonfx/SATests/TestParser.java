@@ -9,7 +9,6 @@ package reasonfx.SATests;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Stream;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
 import javafx.geometry.Orientation;
@@ -20,13 +19,11 @@ import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
 
 import reasonfx.parsers.LogicParser;
-import reasonfx.rule.GivenImpl;
+import reasonfx.rule.Given;
 import reasonfx.rule.Rule;
 import reasonfx.rule.RuleInstance;
-import reasonfx.rule.RuleInstanceVariable;
 import reasonfx.rule.Term;
 import reasonfx.rule.UnificationException;
-import reasonfx.rule.Unifier;
 import reasonfx.rule.Wanted;
 
 /**
@@ -74,12 +71,12 @@ public class TestParser extends Application {
                 j++;
             }
             try {
-                GivenImpl g = new GivenImpl(Objects.requireNonNull(tests[i][1]));
+                Given g = new Given(Objects.requireNonNull(tests[i][1]));
                 tests[i][0].unify(g, tests[i][1]);
-                results[i] = "Yes, with " + new Unifier(g.getBoundVariables());
+                results[i] = "Yes";
             } catch (UnificationException ex) {
                 Logger.getLogger(TestParser.class.getName()).log(Level.FINE, null, ex);
-                results[i] = "false";
+                results[i] = "No";
             }
             i++;
         }
@@ -89,13 +86,15 @@ public class TestParser extends Application {
         System.out.println(
             String.format(msg + ":  %s  |  %s  |  %s  ", rs[0], rs[1], rs[2])
         );
+/*
         Stream.concat(
             rs[0].collect(RuleInstanceVariable.class),
           Stream.concat(
             rs[1].collect(RuleInstanceVariable.class),
             rs[2].collect(RuleInstanceVariable.class)
           )
-        ).distinct().filter(RuleInstanceVariable::isBound).forEach(v -> System.out.println(" " + v.dbgString()));
+        ).distinct().filter(RuleInstanceVariable::isUnified).forEach(v -> System.out.println(" " + v.dbgString()));
+*/
     }
     
     @Override
@@ -131,6 +130,7 @@ public class TestParser extends Application {
         rs[0].disconnect();
         reportRuleInstances("1/>2");
         
+        System.exit(0);
         primaryStage.setTitle("First Order Logic Parser Result");
         primaryStage.setScene(scene);
         primaryStage.show();

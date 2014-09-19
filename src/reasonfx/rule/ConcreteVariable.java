@@ -6,19 +6,24 @@
 
 package reasonfx.rule;
 
-import javafx.beans.property.ReadOnlyStringProperty;
-import reasonfx.util.StringConstant;
+import javafx.beans.property.ReadOnlyStringWrapper;
 
 /**
  *
  * @author holzensp
+ * @param <T>
  */
-public abstract class ConcreteVariable extends Variable {
-    private final ReadOnlyStringProperty varName;
-    public ConcreteVariable(String name, int id) {
-        super(id);
-        varName = new StringConstant(name, this, "varName");
+public abstract class ConcreteVariable<T extends ConcreteVariable> implements Variable<T> {
+    private static int UniqueID = 0;
+    private final ReadOnlyStringWrapper varName;
+    private final int varID;
+    
+    public ConcreteVariable(String name) {
+        varID = UniqueID++;
+        varName = new ReadOnlyStringWrapper(name);
     }
+    
+    @Override public int getID() { return varID; }
     
     @Override
     public void prettyPrint(StringBuilder result, int prec, boolean debugging) {
