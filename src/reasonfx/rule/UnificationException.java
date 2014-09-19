@@ -6,6 +6,8 @@
 
 package reasonfx.rule;
 
+import reasonfx.term.Term;
+
 /**
  *
  * @author holzensp

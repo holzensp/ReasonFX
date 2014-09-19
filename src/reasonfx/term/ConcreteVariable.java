@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package reasonfx.rule;
+package reasonfx.term;
 
 import javafx.beans.property.ReadOnlyStringWrapper;
 

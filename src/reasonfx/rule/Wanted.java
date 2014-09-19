@@ -6,6 +6,7 @@
 
 package reasonfx.rule;
 
+import reasonfx.term.Term;
 import javafx.beans.property.SimpleObjectProperty;
 
 /**

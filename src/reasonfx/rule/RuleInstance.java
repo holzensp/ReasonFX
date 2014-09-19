@@ -6,6 +6,9 @@
 
 package reasonfx.rule;
 
+import reasonfx.term.RuleVariable;
+import reasonfx.term.Term;
+import reasonfx.term.RuleInstanceVariable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;

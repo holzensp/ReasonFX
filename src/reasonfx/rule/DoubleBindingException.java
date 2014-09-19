@@ -6,6 +6,9 @@
 
 package reasonfx.rule;
 
+import reasonfx.term.Term;
+import reasonfx.term.RuleInstanceVariable;
+
 /**
  *
  * @author holzensp

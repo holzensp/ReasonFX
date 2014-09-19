@@ -6,6 +6,7 @@ options{
 
 @header {
     import reasonfx.rule.*;
+    import reasonfx.term.*;
 
     import java.util.function.Function;
     import java.util.Objects;

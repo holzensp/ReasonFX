@@ -8,9 +8,7 @@ package reasonfx.term;
 
 import java.util.Map;
 import java.util.TreeMap;
-import reasonfx.rule.ConcreteVariable;
 import reasonfx.rule.Given;
-import reasonfx.rule.Term;
 import reasonfx.rule.UnificationException;
 
 /**

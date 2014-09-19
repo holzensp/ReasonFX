@@ -4,13 +4,16 @@
  * and open the template in the editor.
  */
 
-package reasonfx.rule;
+package reasonfx.term;
 
+import reasonfx.util.PrettyPrintable;
 import java.util.ArrayList;
 import java.util.Collection;
 import java.util.List;
 import java.util.function.Function;
 import java.util.stream.Stream;
+import reasonfx.rule.Given;
+import reasonfx.rule.UnificationException;
 
 /**
  *

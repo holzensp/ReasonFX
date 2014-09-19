@@ -3,13 +3,13 @@
  * To change this template file, choose Tools | Templates
  * and open the template in the editor.
  */
-package reasonfx.rule;
+package reasonfx.util;
 
 /**
  *
  * @author holzensp
  */
-interface PrettyPrintable {
+public interface PrettyPrintable {
     public default String dbgString() {
         StringBuilder b = new StringBuilder();
         this.prettyPrint(b, -1, true);
@@ -17,7 +17,7 @@ interface PrettyPrintable {
     }
     public default String show() {
         StringBuilder b = new StringBuilder();
-        this.prettyPrint(b, -1, true);
+        this.prettyPrint(b, -1, false);
         return b.toString();
     }
     public void prettyPrint(StringBuilder result, int prec, boolean debugging);

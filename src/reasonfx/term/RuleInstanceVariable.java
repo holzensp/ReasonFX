@@ -4,20 +4,23 @@
  * and open the template in the editor.
  */
 
-package reasonfx.rule;
+package reasonfx.term;
 
-import javafx.beans.InvalidationListener;
-import javafx.beans.Observable;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
+import reasonfx.rule.Binding;
+import reasonfx.rule.Given;
+import reasonfx.rule.RuleInstance;
+import reasonfx.rule.UnificationException;
+import reasonfx.rule.Wanted;
 
 /**
  *
  * @author holzensp
  */
 public class RuleInstanceVariable
-        extends SimpleObjectProperty<Term>
+        extends SimpleObjectProperty<Binding>
         implements UnificationVariable<RuleInstanceVariable> {
 
     private static int UniqueID = 0;
@@ -27,12 +30,6 @@ public class RuleInstanceVariable
 
     private int prettyID = -1;
     private RuleInstance parent;
-    private class Binding {
-        public final Term  value;
-        public final Given origin;
-        public Binding(Term v, Given o) { value = v; origin = o; }
-    }
-    private Binding binding = null;
     
     public RuleInstanceVariable(RuleVariable v) {
         varID     = UniqueID++;
@@ -51,9 +48,9 @@ public class RuleInstanceVariable
     public void setPrettyID(int id) { prettyID = id; }
     public void unsetPrettyID() { prettyID = bluePrint.getRuleLocalID(); }
 
-    public void    ununify()    { binding = null; System.out.println("UNbinding " + this.toString()); }
-    public boolean isUnified()  { return null != binding; }
-    public Term    getBinding() { return binding.value; }
+    public void    ununify()    { this.set(null); System.out.println("UNbinding " + this.toString()); }
+    public boolean isUnified()  { return null != this.get(); }
+    public Term    getBinding() { return this.get().value; }
     
     @Override
     public void prettyPrint(StringBuilder result, int prec, boolean debugging) {
@@ -64,12 +61,12 @@ public class RuleInstanceVariable
                 .append('[').append(String.valueOf(getID())).append(']');
             if(isUnified()) {
                 result.append(" => ");
-                binding.value.prettyPrint(result, -1, debugging);
+                this.get().value.prettyPrint(result, -1, debugging);
                 result.append(')');
             }
         } else {
             if(isUnified())
-                binding.value.prettyPrint(result,prec,debugging);
+                this.get().value.prettyPrint(result,prec,debugging);
             else {
                 result.append(UnificationVariable.mkString(prettyID));
             }
@@ -79,29 +76,34 @@ public class RuleInstanceVariable
     @Override
     public void unify(Given unifier, Term wanted) throws UnificationException {
         if(!isUnified()) {
-            this.set(wanted);
-            unifier.addListener(new ChangeListener<Wanted>() {
+            this.set(new Binding(wanted, unifier));
+            System.out.println("registering RuleInstanceVariable dependency");
+            unifier.addListener(RuleInstanceVariable.class, new ChangeListener<Wanted>() {
                 @Override
                 public void changed(ObservableValue<? extends Wanted> prop,
                         Wanted oldV, Wanted newV) {
+                    System.out.println("releasing RuleInstanceVariable dependency " + RuleInstanceVariable.this.dbgString());
                     //We only ever want to listen to the value being *unset*
-                    assert(oldV != null && newV == null);
+                    assert(oldV == wanted && newV == null);
                     //We no longer depend on this unifier
                     prop.removeListener(this);
                     RuleInstanceVariable.this.ununify();
                 }
             });
-            //unifier.register(this);
-            binding = new Binding(wanted, unifier);
             System.out.println("Binding " + this.dbgString() + " to " + wanted.dbgString());
         } else {
-            this.get().unify(unifier, wanted);
-            //unifier.addListener((Observable observable) -> {
-            //    
-            //    throw new UnsupportedOperationException("Not supported yet."); //To change body of generated methods, choose Tools | Templates.
-            //});
-            binding.origin.register(unifier);
-            binding.value.unify(unifier, wanted);
+            this.get().value.unify(unifier, wanted);
+            System.out.println("!!!!!!!!!!!!!!!registering Given dependency");
+            unifier.addListener(Given.class, new ChangeListener<Wanted>() {
+
+                @Override
+                public void changed(ObservableValue<? extends Wanted> observable, Wanted oldValue, Wanted newValue) {
+                    System.out.println("releasing Given dependency");
+                    observable.removeListener(this);
+                }
+            });
+            this.get().origin.register(unifier);
+            this.get().value.unify(unifier, wanted);
         }
     }
     

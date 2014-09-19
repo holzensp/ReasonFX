@@ -10,7 +10,7 @@ import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.layout.Pane;
 import reasonfx.SATests.GUITest;
-import reasonfx.rule.Term;
+import reasonfx.term.Term;
 import reasonfx.rule.Wanted;
 
 /**

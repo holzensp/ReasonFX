@@ -22,7 +22,7 @@ import reasonfx.parsers.LogicParser;
 import reasonfx.rule.Given;
 import reasonfx.rule.Rule;
 import reasonfx.rule.RuleInstance;
-import reasonfx.rule.Term;
+import reasonfx.term.Term;
 import reasonfx.rule.UnificationException;
 import reasonfx.rule.Wanted;
 
@@ -38,7 +38,8 @@ public class TestParser extends Application {
     private static final RuleInstance rs[] = {
         RuleInstance.instantiate(andEL),
         RuleInstance.instantiate(andEL),
-        RuleInstance.instantiate(andEL) };
+        RuleInstance.instantiate(andEL),
+        RuleInstance.instantiate(andEL)};
     
     static {
         String[][] inps =
@@ -99,6 +100,7 @@ public class TestParser extends Application {
     
     @Override
     public void start(Stage primaryStage) {
+        Logger.getLogger(Given.class.getName()).setLevel(Level.FINEST);
         FlowPane ins = new FlowPane(Orientation.VERTICAL);
         FlowPane outs = new FlowPane(Orientation.VERTICAL);
         for(Term[] pair : tests) {
@@ -122,14 +124,22 @@ public class TestParser extends Application {
         
         reportRuleInstances("INIT");
         rs[0].unify(new Wanted(rs[1].getPremisses().iterator().next()));
+        rs[0].unify(new Wanted(rs[1].getPremisses().iterator().next()));
         rs[1].renumber(rs[0].renumber(0));
         reportRuleInstances("1->2");
+        rs[2].unify(new Wanted(rs[0].getPremisses().iterator().next()));
+        rs[2].renumber(rs[1].renumber(rs[0].renumber(0)));
+        reportRuleInstances("3->1");
+/*
+        rs[1].unify(new Wanted(rs[2].getPremisses().iterator().next()));
+        rs[2].renumber(rs[1].renumber(rs[0].renumber(0)));
+        reportRuleInstances("2->3");
         rs[1].unify(new Wanted(rs[2].getPremisses().iterator().next()));
         rs[2].renumber(rs[1].renumber(rs[0].renumber(0)));
         reportRuleInstances("2->3");
         rs[0].disconnect();
         reportRuleInstances("1/>2");
-        
+*/      
         System.exit(0);
         primaryStage.setTitle("First Order Logic Parser Result");
         primaryStage.setScene(scene);

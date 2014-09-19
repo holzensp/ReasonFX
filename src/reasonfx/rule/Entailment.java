@@ -6,6 +6,7 @@
 
 package reasonfx.rule;
 
+import reasonfx.term.Term;
 import java.util.Collection;
 import java.util.stream.Stream;
 

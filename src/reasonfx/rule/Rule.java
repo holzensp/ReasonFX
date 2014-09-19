@@ -6,6 +6,9 @@
 
 package reasonfx.rule;
 
+import reasonfx.term.ConcreteVariable;
+import reasonfx.term.RuleVariable;
+import reasonfx.term.Term;
 import java.util.Collection;
 import java.util.Map;
 import java.util.TreeMap;

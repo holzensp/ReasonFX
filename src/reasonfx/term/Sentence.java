@@ -4,7 +4,7 @@
  * and open the template in the editor.
  */
 
-package reasonfx.rule;
+package reasonfx.term;
 
 import java.util.ArrayList;
 import java.util.Collection;
@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import reasonfx.rule.Given;
+import reasonfx.rule.UnificationException;
 
 /**
  *
@@ -63,7 +65,7 @@ public class Sentence implements Term {
     
     @Override
     public void prettyPrint(StringBuilder result, int prec, boolean debugging) {
-        boolean parens = prec > operator.precedence;
+        boolean parens = prec >= operator.precedence;
         String glue = "";
         switch(operands.size()) {
             case 0: result.append(operator.StringRepr); break;

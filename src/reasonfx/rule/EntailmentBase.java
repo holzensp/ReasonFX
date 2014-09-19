@@ -6,6 +6,9 @@
 
 package reasonfx.rule;
 
+import reasonfx.term.Term;
+import reasonfx.term.RuleInstanceVariable;
+import reasonfx.util.PrettyPrintable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
