@@ -7,16 +7,10 @@
 package reasonfx.SATests;
 
 import java.util.Objects;
-import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
 import static javafx.application.Application.launch;
-import javafx.geometry.Orientation;
-import javafx.scene.Scene;
-import javafx.scene.control.Label;
-import javafx.scene.input.KeyEvent;
-import javafx.scene.layout.FlowPane;
 import javafx.stage.Stage;
 
 import reasonfx.parsers.LogicParser;
@@ -35,7 +29,6 @@ import reasonfx.util.ReasonLogger;
 public class TestParser extends Application {
     public static final ReasonLogger LOGGER = new ReasonLogger(TestParser.class);
     
-    static String inp = "UNDEFINED";
     private static final Term[][] tests;
     private static final String[] results;
     private static final Rule andEL = LogicParser.parse(LogicParser::dedrule,"@x^@y |- @x").r;
@@ -88,39 +81,29 @@ public class TestParser extends Application {
     }
     
     public void reportRuleInstances(String msg) {
-        LOGGER.info("{0}:  {1}  |  {2}  |  {3}  ", msg, rs[0], rs[1], rs[2]);
-/*
-        String.format(msg + ":  %s  |  %s  |  %s  ", rs[0], rs[1], rs[2])
-        );
-*/
-/*
-        Stream.concat(
-            rs[0].collect(RuleInstanceVariable.class),
-          Stream.concat(
-            rs[1].collect(RuleInstanceVariable.class),
-            rs[2].collect(RuleInstanceVariable.class)
-          )
-        ).distinct().filter(RuleInstanceVariable::isUnified).forEach(v -> LOGGER.info(" " + v.dbgString()));
-*/
+        LOGGER.info("{0}:  {1}  |  {2}  |  {3}  | {4}  ", msg, rs[0], rs[1], rs[2], rs[3]);
     }
     
     @Override
     public void start(Stage primaryStage) {
         System.out.println("\n\n\n");
         
-        LOGGER.info(andEL.dbgString());
+        LOGGER.info(andEL.toString());
         
+        rs[3].renumber(rs[2].renumber(rs[1].renumber(rs[0].renumber(0))));
+
         reportRuleInstances("INIT");
         LOGGER.info("Unifying conclusion of rule 0 with wanted of rule 1");
         rs[0].unify(new Wanted(rs[1].getPremisses().iterator().next()));
         LOGGER.info("Unifying conclusion of rule 0 with wanted of rule 1 AGAIN");
         rs[0].unify(new Wanted(rs[1].getPremisses().iterator().next()));
-        LOGGER.info("Renumbering...");
-        rs[1].renumber(rs[0].renumber(0));
         reportRuleInstances("1->2");
         rs[2].unify(new Wanted(rs[0].getPremisses().iterator().next()));
-        rs[2].renumber(rs[1].renumber(rs[0].renumber(0)));
         reportRuleInstances("3->1");
+        rs[3].unify(new Wanted(rs[2].getPremisses().iterator().next()));
+        reportRuleInstances("4->3");
+        rs[2].disconnect();
+        reportRuleInstances("3/>1");
         
         System.exit(0);
     }

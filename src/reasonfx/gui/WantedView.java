@@ -25,15 +25,15 @@ public class WantedView extends Pane {
     public WantedView(Wanted w) {
         super();
         wanted = w;
-        unsatisfied = new Label(w.asTerm().toString());
+        unsatisfied = new Label(w.asTerm().show());
         this.getChildren().add(unsatisfied);
         String colour = "-fx-background-color: #";
         for(int i = 0; i < 3; i++)
             colour += String.format("%2h", 200 + Math.round(40 * Math.random()));
-        System.out.println(colour);
         this.setStyle(colour);
         this.addEventFilter(MouseEvent.MOUSE_CLICKED, event -> {
             if(event.getButton() == MouseButton.SECONDARY) {
+                System.out.println("Setting active wanted view to " + this.wanted.toString());
                 GUITest.setActiveWantedView(WantedView.this);
             }
         });
@@ -46,6 +46,7 @@ public class WantedView extends Pane {
             satisfier = gv;
             this.getChildren().clear();
             this.getChildren().add(satisfier);
+            this.relocate(100, 200);
             return true;
         }
         return false;
@@ -59,4 +60,7 @@ public class WantedView extends Pane {
         this.getChildren().add(unsatisfied);
         return res;
     }
+    
+    @Override public String toString() { return wanted.asTerm().asStringExpression(-1).get(); }
+
 }
