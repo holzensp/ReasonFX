@@ -7,6 +7,7 @@
 package reasonfx.SATests;
 
 import java.util.Objects;
+import java.util.logging.ConsoleHandler;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 import javafx.application.Application;
@@ -25,12 +26,15 @@ import reasonfx.rule.RuleInstance;
 import reasonfx.term.Term;
 import reasonfx.rule.UnificationException;
 import reasonfx.rule.Wanted;
+import reasonfx.util.ReasonLogger;
 
 /**
  *
  * @author holzensp
  */
 public class TestParser extends Application {
+    public static final ReasonLogger LOGGER = new ReasonLogger(TestParser.class);
+    
     static String inp = "UNDEFINED";
     private static final Term[][] tests;
     private static final String[] results;
@@ -84,9 +88,11 @@ public class TestParser extends Application {
     }
     
     public void reportRuleInstances(String msg) {
-        System.out.println(
-            String.format(msg + ":  %s  |  %s  |  %s  ", rs[0], rs[1], rs[2])
+        LOGGER.info("{0}:  {1}  |  {2}  |  {3}  ", msg, rs[0], rs[1], rs[2]);
+/*
+        String.format(msg + ":  %s  |  %s  |  %s  ", rs[0], rs[1], rs[2])
         );
+*/
 /*
         Stream.concat(
             rs[0].collect(RuleInstanceVariable.class),
@@ -94,56 +100,29 @@ public class TestParser extends Application {
             rs[1].collect(RuleInstanceVariable.class),
             rs[2].collect(RuleInstanceVariable.class)
           )
-        ).distinct().filter(RuleInstanceVariable::isUnified).forEach(v -> System.out.println(" " + v.dbgString()));
+        ).distinct().filter(RuleInstanceVariable::isUnified).forEach(v -> LOGGER.info(" " + v.dbgString()));
 */
     }
     
     @Override
     public void start(Stage primaryStage) {
-        Logger.getLogger(Given.class.getName()).setLevel(Level.FINEST);
-        FlowPane ins = new FlowPane(Orientation.VERTICAL);
-        FlowPane outs = new FlowPane(Orientation.VERTICAL);
-        for(Term[] pair : tests) {
-            ins.getChildren().add(new Label(
-                pair[0].show() + " ~ " + pair[1].show()));
-        }
-        for(String res : results) {
-            outs.getChildren().add(new Label("" + res));
-        }
-
-        FlowPane root = new FlowPane(Orientation.HORIZONTAL);
-        root.getChildren().addAll(ins,outs);
+        System.out.println("\n\n\n");
         
-        Scene scene = new Scene(root, 900, 250);
-        
-        scene.addEventFilter(KeyEvent.ANY, (KeyEvent event) -> {
-            primaryStage.close();
-        });
-        
-        System.out.println(andEL.dbgString());
+        LOGGER.info(andEL.dbgString());
         
         reportRuleInstances("INIT");
+        LOGGER.info("Unifying conclusion of rule 0 with wanted of rule 1");
         rs[0].unify(new Wanted(rs[1].getPremisses().iterator().next()));
+        LOGGER.info("Unifying conclusion of rule 0 with wanted of rule 1 AGAIN");
         rs[0].unify(new Wanted(rs[1].getPremisses().iterator().next()));
+        LOGGER.info("Renumbering...");
         rs[1].renumber(rs[0].renumber(0));
         reportRuleInstances("1->2");
         rs[2].unify(new Wanted(rs[0].getPremisses().iterator().next()));
         rs[2].renumber(rs[1].renumber(rs[0].renumber(0)));
         reportRuleInstances("3->1");
-/*
-        rs[1].unify(new Wanted(rs[2].getPremisses().iterator().next()));
-        rs[2].renumber(rs[1].renumber(rs[0].renumber(0)));
-        reportRuleInstances("2->3");
-        rs[1].unify(new Wanted(rs[2].getPremisses().iterator().next()));
-        rs[2].renumber(rs[1].renumber(rs[0].renumber(0)));
-        reportRuleInstances("2->3");
-        rs[0].disconnect();
-        reportRuleInstances("1/>2");
-*/      
+        
         System.exit(0);
-        primaryStage.setTitle("First Order Logic Parser Result");
-        primaryStage.setScene(scene);
-        primaryStage.show();
     }
 
     /**

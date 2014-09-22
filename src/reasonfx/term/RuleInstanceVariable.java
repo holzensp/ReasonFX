@@ -14,6 +14,7 @@ import reasonfx.rule.Given;
 import reasonfx.rule.RuleInstance;
 import reasonfx.rule.UnificationException;
 import reasonfx.rule.Wanted;
+import reasonfx.util.ReasonLogger;
 
 /**
  *
@@ -22,6 +23,8 @@ import reasonfx.rule.Wanted;
 public class RuleInstanceVariable
         extends SimpleObjectProperty<Binding>
         implements UnificationVariable<RuleInstanceVariable> {
+
+    public static final ReasonLogger LOGGER = new ReasonLogger(RuleInstanceVariable.class);
 
     private static int UniqueID = 0;
     
@@ -48,7 +51,7 @@ public class RuleInstanceVariable
     public void setPrettyID(int id) { prettyID = id; }
     public void unsetPrettyID() { prettyID = bluePrint.getRuleLocalID(); }
 
-    public void    ununify()    { this.set(null); System.out.println("UNbinding " + this.toString()); }
+    public void    ununify()    { LOGGER.info("UNbinding {0}", this); this.set(null); }
     public boolean isUnified()  { return null != this.get(); }
     public Term    getBinding() { return this.get().value; }
     
@@ -76,13 +79,14 @@ public class RuleInstanceVariable
     @Override
     public void unify(Given unifier, Term wanted) throws UnificationException {
         if(!isUnified()) {
+            LOGGER.info("Binding {0} to {1}", this.dbgString(), wanted.dbgString());
             this.set(new Binding(wanted, unifier));
-            System.out.println("registering RuleInstanceVariable dependency");
+            LOGGER.info("registering RuleInstanceVariable dependency");
             unifier.addListener(RuleInstanceVariable.class, new ChangeListener<Wanted>() {
                 @Override
                 public void changed(ObservableValue<? extends Wanted> prop,
                         Wanted oldV, Wanted newV) {
-                    System.out.println("releasing RuleInstanceVariable dependency " + RuleInstanceVariable.this.dbgString());
+                    LOGGER.info("releasing RuleInstanceVariable dependency {0}", RuleInstanceVariable.this.dbgString());
                     //We only ever want to listen to the value being *unset*
                     assert(oldV == wanted && newV == null);
                     //We no longer depend on this unifier
@@ -90,19 +94,19 @@ public class RuleInstanceVariable
                     RuleInstanceVariable.this.ununify();
                 }
             });
-            System.out.println("Binding " + this.dbgString() + " to " + wanted.dbgString());
         } else {
             this.get().value.unify(unifier, wanted);
-            System.out.println("!!!!!!!!!!!!!!!registering Given dependency");
+            LOGGER.info("Registering Given dependency");
             unifier.addListener(Given.class, new ChangeListener<Wanted>() {
-
                 @Override
                 public void changed(ObservableValue<? extends Wanted> observable, Wanted oldValue, Wanted newValue) {
-                    System.out.println("releasing Given dependency");
+                    LOGGER.info("Releasing Given dependency for {0}", unifier);
                     observable.removeListener(this);
+                    LOGGER.info("Calling reUnify for {0}", unifier);
+                    unifier.reUnify();
                 }
             });
-            this.get().origin.register(unifier);
+            //this.get().origin.register(unifier);
             this.get().value.unify(unifier, wanted);
         }
     }

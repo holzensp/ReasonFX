@@ -23,6 +23,7 @@ public class ReasonLogger {
     public void exiting(String s) { Logger.getLogger(className).exiting(className, s); }
     
     public void severe(String s, Object... os) { log(Level.SEVERE, s, os); }
+    public void info(  String s, Object... os) { log(Level.INFO,   s, os); }
     public void fine(  String s, Object... os) { log(Level.FINE,   s, os); }
     public void finer( String s, Object... os) { log(Level.FINER,  s, os); }
     public void finest(String s, Object... os) { log(Level.FINEST, s, os); }

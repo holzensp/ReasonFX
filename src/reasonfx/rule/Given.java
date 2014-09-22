@@ -6,13 +6,12 @@
 
 package reasonfx.rule;
 
+import java.util.concurrent.Callable;
 import reasonfx.term.Term;
-import java.util.ArrayList;
-import java.util.Collection;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.beans.binding.Bindings;
 import javafx.beans.binding.StringExpression;
-import javafx.beans.property.ReadOnlyStringWrapper;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
 import javafx.beans.value.ChangeListener;
@@ -26,14 +25,28 @@ import reasonfx.util.ReasonLogger;
 public class Given extends SimpleObjectProperty<Wanted> {
     public static final ReasonLogger LOGGER = new ReasonLogger(Given.class);
     
-    protected Collection<Given> deps = new ArrayList();
     protected final Term given;
     protected final SimpleStringProperty stringProp = new SimpleStringProperty();
+    private boolean onlyVarDeps = true; //Invariant checker; see disconnect() for comments
+
+    @SuppressWarnings("LeakingThisInConstructor")
+    public Given(Term t) {
+        super(null);
+        given = t;
+        //TODO: This Given shouldn't require it's own stringProp, if all Terms can produce one.
+        stringProp.bind(Bindings.createStringBinding(given::toString, this));
+    }
+    
+    public boolean          isSatisfying()   { return null != this.get(); }
+    public StringExpression stringProperty() { return stringProp; }
+    public Term             asTerm()         { return given; }
+
 
     public boolean unify(Wanted w) {
+        if(isSatisfying()) return false;
         LOGGER.entering("unify", this, w);
         final Term wanted = w.asTerm();
-        LOGGER.fine("Trying to unify given {0} with wanted {1}", given.show(), wanted.show());
+        LOGGER.info("Trying to unify given {0} with wanted {1}", given.dbgString(), wanted.dbgString());
         this.set(w);
         try {
             given.unify(this, wanted);
@@ -42,65 +55,30 @@ public class Given extends SimpleObjectProperty<Wanted> {
         } catch(UnificationException e) {
             disconnect();
             return false;
-        } finally {
-            //TODO: This should just come from binding stringProp to this.
-            stringProp.set(given.toString());
         }
     }
     
-    public boolean isSatisfying() {
-        return null != this.get();
-    }
-
-    
-    public StringExpression stringProperty() {
-        //TODO
-        return new ReadOnlyStringWrapper(asTerm().toString() + "TODO");
-    }
-    
-    public Given(Term t) {
-        super(null);
-        onlyVarDeps = true;
-        given = t;
-        stringProp.set(given.toString());
-    }
-    
-    
-
-    public Term asTerm() {
-        //TODO; should we return the Wanted variant, or could we always return given?
-        //Since they're unified... do we care?
-        return isSatisfying() ? this.get().asTerm() : given;
-    }
-
     public void disconnect() {
-        System.out.println("disconnecting " + this.toString());
-        //Only to check the invariant explained below
-        onlyVarDeps = true;
-
-        final Collection<Given> ds = deps;
-        deps = new ArrayList();
-
-        //TODO; should we just return, or is this reason to raise an exception?
+        //TODO: ultimately, this should really be as simple as this.set(null);
         if (!isSatisfying()) return;
 
-        stringProp.set(given.toString());
+        LOGGER.info("Disconnecting {0}", this);
+        
+        //Until we reach a better understanding, we need to check the following invariant:
+        //When a 'Given' gets disconnected, the univars bound by the corresponding unification must
+        //be unbound *before* any of the dependent 'Given's are notified and 'reUnify'd. Since the
+        //univar listeners get added during unification of the "first" 'Given', they should all be
+        //added before any dependent 'Given's get added. We use 'onlyVarDeps' to signal that we have
+        //"so-far" only added univars and no 'Given's. When actually disconnecting (i.e. setting the
+        //property value to null) 'reUnify' of some dependent Given may be called, causing new list-
+        //eners to be added. This is why we first set 'onlyVarDeps' to true, so that we already flag
+        //the clean initial state of this invariant.
+        onlyVarDeps = true;
         this.set(null);
-
-        //AFTER releasing al univars and setting this property to null, re-unify the dependencies.
-        //If we do this in order of listener-addition, univars and dependencies are interleaved and
-        //so some dependencies would not be notified of variables released later. The question is
-        //whether this can occur, since dependencies should only be added as listeners after the
-        //unification of this with a wanted (which causes all the univars to be added as listeners).
-        ds.stream().forEach(Given::reUnify);
     }
 
     public void reUnify() { if (isSatisfying()) this.unify(this.get()); }
 
-    public void register(Given g) { deps.add(g); }
-    
-    
-    private boolean onlyVarDeps;
     public <T> void addListener(Class<T> cls, ChangeListener<? super Wanted> l) {
         if(onlyVarDeps) {
             onlyVarDeps = UnificationVariable.class.isAssignableFrom(cls);
