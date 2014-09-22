@@ -12,6 +12,8 @@ import reasonfx.util.PrettyPrintable;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.Iterator;
+import javafx.beans.binding.StringExpression;
+import javafx.beans.property.ReadOnlyStringWrapper;
 
 /**
  *
@@ -32,7 +34,8 @@ public class EntailmentBase extends Given implements Entailment, PrettyPrintable
     @Override public Collection<Term> getPremisses() { return premisses; }
     @Override public Term getConclusion()            { return asTerm(); }
 
-    @Override public String toString() { return show(); }
+    @Override public String toString() { return asStringExpression(-1).get(); }
+/*
     @Override
     public void prettyPrint(StringBuilder result, int prec, boolean debugging) {
         String glue = "";
@@ -43,6 +46,19 @@ public class EntailmentBase extends Given implements Entailment, PrettyPrintable
         }
         result.append(" |- ");
         getConclusion().prettyPrint(result, -1, debugging);
+    }
+*/
+    
+    @Override
+    public StringExpression asStringExpression(int prec) {
+        StringExpression result = new ReadOnlyStringWrapper("");
+        String glue = "";
+        for(Term t : getPremisses()) {
+            result = result.concat(glue)
+                           .concat(t.asStringExpression(-1));
+            glue = ", ";
+        }
+        return result.concat(" |- ").concat(getConclusion().asStringExpression(-1));
     }
 
     @Override

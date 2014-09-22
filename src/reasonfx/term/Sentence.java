@@ -12,6 +12,8 @@ import java.util.List;
 import java.util.Objects;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import javafx.beans.binding.StringExpression;
+import javafx.beans.property.ReadOnlyStringWrapper;
 import reasonfx.rule.Given;
 import reasonfx.rule.UnificationException;
 
@@ -57,12 +59,14 @@ public class Sentence implements Term {
         if(!(wanted instanceof Sentence)) throw e;
         Sentence that = (Sentence) wanted;
         if(!this.operator.equals(that.operator)) throw e;
+        if(this.operands.size() != that.operands.size()) throw e;
         for(int i = 0; i < operands.size(); i++)
             this.operands.get(i).unify(unifier, that.operands.get(i));
     }
     
     @Override public String toString() { return this.show(); }
-    
+
+/*
     @Override
     public void prettyPrint(StringBuilder result, int prec, boolean debugging) {
         boolean parens = prec >= operator.precedence;
@@ -79,6 +83,27 @@ public class Sentence implements Term {
                     glue = operator.StringRepr;
                 }
                 if(parens) result.append(")");
+        }
+    }
+*/
+
+    @Override
+    public StringExpression asStringExpression(int prec) {
+        boolean parens = prec >= operator.precedence;
+        StringExpression glue   = new ReadOnlyStringWrapper("");
+        StringExpression result = new ReadOnlyStringWrapper("");
+        switch(operands.size()) {
+            case 0: return operator.stringRepr;
+            case 1:
+                glue = operator.stringRepr;
+            default:
+                if(parens) result = result.concat("(");
+                for(Term t : operands) {
+                    result = result.concat(glue)
+                                   .concat(t.asStringExpression(operator.precedence));
+                    glue = operator.stringRepr;
+                }
+                return parens ? result.concat(")") : result;
         }
     }
 

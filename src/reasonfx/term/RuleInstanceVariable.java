@@ -6,6 +6,8 @@
 
 package reasonfx.term;
 
+import javafx.beans.binding.Bindings;
+import javafx.beans.binding.StringExpression;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -28,16 +30,16 @@ public class RuleInstanceVariable
 
     private static int UniqueID = 0;
     
-    private final RuleVariable bluePrint;
-    private final int          varID;
+    private final RuleVariable     bluePrint;
+    private final int              varID;
 
     private int prettyID = -1;
     private RuleInstance parent;
     
     public RuleInstanceVariable(RuleVariable v) {
-        varID     = UniqueID++;
-        bluePrint = v;
-        prettyID  = v.getRuleLocalID();
+        varID            = UniqueID++;
+        bluePrint        = v;
+        prettyID         = v.getRuleLocalID();
     }
     
     protected void setParent(RuleInstance i) {
@@ -54,7 +56,8 @@ public class RuleInstanceVariable
     public void    ununify()    { LOGGER.info("UNbinding {0}", this); this.set(null); }
     public boolean isUnified()  { return null != this.get(); }
     public Term    getBinding() { return this.get().value; }
-    
+ 
+/*
     @Override
     public void prettyPrint(StringBuilder result, int prec, boolean debugging) {
         if(debugging) {
@@ -74,6 +77,17 @@ public class RuleInstanceVariable
                 result.append(UnificationVariable.mkString(prettyID));
             }
         }
+    }
+ */
+    
+    @Override public StringExpression asStringExpression(int prec) {
+        //TODO: FIX THIS!
+        return Bindings.createStringBinding(() -> {
+            if(isUnified())
+                return this.get().value.asStringExpression(prec).get();
+            else
+                return UnificationVariable.mkString(prettyID);
+        }, this);
     }
 
     @Override
@@ -97,7 +111,7 @@ public class RuleInstanceVariable
         } else {
             this.get().value.unify(unifier, wanted);
             LOGGER.info("Registering Given dependency");
-            unifier.addListener(Given.class, new ChangeListener<Wanted>() {
+            this.get().origin.addListener(Given.class, new ChangeListener<Wanted>() {
                 @Override
                 public void changed(ObservableValue<? extends Wanted> observable, Wanted oldValue, Wanted newValue) {
                     LOGGER.info("Releasing Given dependency for {0}", unifier);
@@ -111,5 +125,5 @@ public class RuleInstanceVariable
         }
     }
     
-    @Override public String toString() { return dbgString(); }
+//    @Override public String toString() { return dbgString(); }
 }

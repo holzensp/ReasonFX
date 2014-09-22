@@ -6,6 +6,7 @@
 
 package reasonfx.term;
 
+import javafx.beans.binding.StringExpression;
 import javafx.beans.property.ReadOnlyStringWrapper;
 
 /**
@@ -25,10 +26,14 @@ public abstract class ConcreteVariable<T extends ConcreteVariable> implements Va
     
     @Override public int getID() { return varID; }
     
+/*
     @Override
     public void prettyPrint(StringBuilder result, int prec, boolean debugging) {
         result.append(varName.get());
         if(debugging)
             result.append('(').append(String.valueOf(getID())).append(')');
     }
+*/
+    
+    @Override public StringExpression asStringExpression(int prec) { return varName; }
 }

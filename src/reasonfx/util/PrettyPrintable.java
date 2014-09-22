@@ -5,20 +5,20 @@
  */
 package reasonfx.util;
 
+import javafx.beans.binding.StringExpression;
+
 /**
  *
  * @author holzensp
  */
 public interface PrettyPrintable {
     public default String dbgString() {
-        StringBuilder b = new StringBuilder();
-        this.prettyPrint(b, -1, true);
-        return b.toString();
+        return show();
     }
     public default String show() {
-        StringBuilder b = new StringBuilder();
-        this.prettyPrint(b, -1, false);
-        return b.toString();
+        return asStringExpression(-1).get();
     }
-    public void prettyPrint(StringBuilder result, int prec, boolean debugging);
+    
+    public StringExpression asStringExpression(int prec);
+    
 }

@@ -6,7 +6,6 @@
 
 package reasonfx.rule;
 
-import java.util.concurrent.Callable;
 import reasonfx.term.Term;
 import java.util.logging.Level;
 import java.util.logging.Logger;
@@ -34,7 +33,7 @@ public class Given extends SimpleObjectProperty<Wanted> {
         super(null);
         given = t;
         //TODO: This Given shouldn't require it's own stringProp, if all Terms can produce one.
-        stringProp.bind(Bindings.createStringBinding(given::toString, this));
+        stringProp.bind(Bindings.createStringBinding(given::show, this));
     }
     
     public boolean          isSatisfying()   { return null != this.get(); }

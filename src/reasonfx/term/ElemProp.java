@@ -38,5 +38,5 @@ public class ElemProp extends ConcreteVariable<ElemProp> {
             throw new UnificationException(this,wanted);
     }
 
-    @Override public String toString() { return dbgString(); }
+//    @Override public String toString() { return dbgString(); }
 }
