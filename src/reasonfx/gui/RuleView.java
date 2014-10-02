@@ -14,6 +14,7 @@ import javafx.scene.control.Separator;
 import javafx.scene.input.ClipboardContent;
 import javafx.scene.input.DragEvent;
 import javafx.scene.input.Dragboard;
+import javafx.scene.input.MouseButton;
 import javafx.scene.input.MouseEvent;
 import javafx.scene.input.TransferMode;
 import javafx.scene.layout.HBox;
@@ -80,7 +81,7 @@ public class RuleView extends Satisfier {
     
     public void handle(MouseEvent event) {
         EventType<? extends MouseEvent> ty = event.getEventType();
-        if(ty.equals(MouseEvent.DRAG_DETECTED)) {
+        if(ty.equals(MouseEvent.DRAG_DETECTED) && event.getButton() == MouseButton.SECONDARY) {
             System.out.println("onDragDetected");
             Dragboard db = startDragAndDrop(TransferMode.MOVE);
             ClipboardContent content = new ClipboardContent();
