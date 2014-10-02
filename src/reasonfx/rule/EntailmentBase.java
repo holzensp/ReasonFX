@@ -22,32 +22,13 @@ import javafx.beans.property.ReadOnlyStringWrapper;
 public class EntailmentBase extends Given implements Entailment, PrettyPrintable {
     protected final Collection<Term> premisses;
     
-    public EntailmentBase(Term c, Term... ps) {
-        this(c,Arrays.asList(ps));
-    }
-    
-    public EntailmentBase(Term c, Collection<Term> ps) {
-        super(c);
-        premisses = ps;
-    }
+    public EntailmentBase(Term c, Term... ps) { this(c,Arrays.asList(ps)); }
+    public EntailmentBase(Term c, Collection<Term> ps) { super(c); premisses = ps; }
     
     @Override public Collection<Term> getPremisses() { return premisses; }
     @Override public Term getConclusion()            { return asTerm(); }
 
     @Override public String toString() { return asStringExpression(-1).get(); }
-/*
-    @Override
-    public void prettyPrint(StringBuilder result, int prec, boolean debugging) {
-        String glue = "";
-        for(Term t : getPremisses()) {
-            result.append(glue);
-            t.prettyPrint(result, -1, debugging);
-            glue = ", ";
-        }
-        result.append(" |- ");
-        getConclusion().prettyPrint(result, -1, debugging);
-    }
-*/
     
     @Override
     public StringExpression asStringExpression(int prec) {

@@ -32,8 +32,9 @@ public class RuleInstance extends EntailmentBase {
             };
         Term c = bluePrint.getConclusion().copyWith(mkInst, RuleVariable.class);
         List<Term> ps = new ArrayList();
-        for(Term t : bluePrint.getPremisses())
-            ps.add(t.copyWith(mkInst, RuleVariable.class));
+        bluePrint.getPremisses().stream()
+            .map(t -> t.copyWith(mkInst, RuleVariable.class))
+            .forEach(ps::add);
         return new RuleInstance(c, ps);
     }
     

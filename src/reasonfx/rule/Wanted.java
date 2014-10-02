@@ -34,6 +34,9 @@ public class Wanted extends SimpleObjectProperty<Given> {
     
     public void disconnect() {
         if(isSatisfied()) {
+            // Prevent exponential work: *First* set the satisfier to null and *then* tell the
+            // former satisfier. This is because g.disconnect() will tell other dependencies to
+            // reunify
             Given g = get();
             set(null);
             g.disconnect();

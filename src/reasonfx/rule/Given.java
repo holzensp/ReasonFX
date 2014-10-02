@@ -62,11 +62,7 @@ public class Given extends SimpleObjectProperty<Wanted> {
         //TODO: ultimately, this should really be as simple as this.set(null);
         if (!isSatisfying()) return;
 
-        String s = "TRACE";
-        for(StackTraceElement e : new Exception("").getStackTrace()) {
-            s += "\n\t" + e;
-        }
-        LOGGER.info("Disconnecting {0} ({1})", this, s);
+        LOGGER.info("Disconnecting {0}", this);
         
         //Until we reach a better understanding, we need to check the following invariant:
         //When a 'Given' gets disconnected, the univars bound by the corresponding unification must
