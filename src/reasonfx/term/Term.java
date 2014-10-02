@@ -22,15 +22,20 @@ import reasonfx.rule.UnificationException;
 public interface Term extends PrettyPrintable {
     /* Analysis methods */
     public default void unify(Given unifier, Term wanted) throws UnificationException {
+        // Equality on object identity is trivial unification
         if(this == wanted) return;
+        
         if(UnificationVariable.class.isAssignableFrom(wanted.getClass()))
+            // Special treatment for unification variables
             wanted.unifyImpl(unifier, this);
         else
+            // Delegate to Term-specific implementation
             this.unifyImpl(unifier,wanted);
     }
     
     public void unifyImpl(Given unifier, Term wanted) throws UnificationException;
     
+    /* Traversal tools */
     public default <T> Stream<T> collect(Class<T> cls) {
         Stream<T> chlds = children().stream().flatMap(t -> t.collect(cls));
         Stream<T> res = cls.isAssignableFrom(this.getClass())

@@ -15,6 +15,7 @@ public interface UnificationVariable<T extends UnificationVariable> extends Vari
     public static final int DigitOffset = 0x2080 - Character.codePointAt("0",0);
     
     public static String mkString(final int id) {
+        // Lovely Unicode...
         StringBuilder b = new StringBuilder()
             .appendCodePoint(varCodePoints[id % varCodePoints.length]);
         if(id >= varCodePoints.length) {

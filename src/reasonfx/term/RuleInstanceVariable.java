@@ -37,9 +37,9 @@ public class RuleInstanceVariable
     private RuleInstance parent;
     
     public RuleInstanceVariable(RuleVariable v) {
-        varID            = UniqueID++;
-        bluePrint        = v;
-        prettyID         = v.getRuleLocalID();
+        varID     = UniqueID++;
+        bluePrint = v;
+        prettyID  = v.getRuleLocalID();
     }
     
     protected void setParent(RuleInstance i) {
@@ -97,10 +97,8 @@ public class RuleInstanceVariable
                     unifier.reUnify();
                 }
             });
-            //this.get().origin.register(unifier);
             this.get().value.unifyImpl(unifier, wanted);
         }
     }
     
-//    @Override public String toString() { return dbgString(); }
 }

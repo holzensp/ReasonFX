@@ -66,27 +66,6 @@ public class Sentence implements Term {
     
     @Override public String toString() { return this.show(); }
 
-/*
-    @Override
-    public void prettyPrint(StringBuilder result, int prec, boolean debugging) {
-        boolean parens = prec >= operator.precedence;
-        String glue = "";
-        switch(operands.size()) {
-            case 0: result.append(operator.StringRepr); break;
-            case 1:
-                glue = operator.StringRepr;
-            default:
-                if(parens) result.append("(");
-                for(Term t : operands) {
-                    result.append(glue);
-                    t.prettyPrint(result, operator.precedence, debugging);
-                    glue = operator.StringRepr;
-                }
-                if(parens) result.append(")");
-        }
-    }
-*/
-
     @Override
     public StringExpression asStringExpression(int prec) {
         boolean parens = prec >= operator.precedence;

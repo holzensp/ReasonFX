@@ -34,11 +34,6 @@ public class RuleVariable implements UnificationVariable<RuleVariable> {
     public void unifyImpl(Given unifier, Term wanted) throws UnificationException {
         throw new UnsupportedOperationException("RuleVariables may *never* be unified.");
     }
-/*
-    @Override
-    public void prettyPrint(StringBuilder result, int prec, boolean debugging) {
-        result.append(UnificationVariable.mkString(this.getID()));
-    }
-*/
+
     @Override public StringExpression asStringExpression(int prec) { return pretty; }
 }

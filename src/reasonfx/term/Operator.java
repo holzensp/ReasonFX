@@ -18,14 +18,12 @@ import javafx.beans.property.ReadOnlyStringWrapper;
 public class Operator {
     private static final HashMap<String,Operator> KNOWNOPS = new HashMap();
     
-    public final String                 StringRepr;
     public final ReadOnlyStringProperty stringRepr;
     public final int                    arity;
     public final boolean                associative;
     public final int                    precedence;
     
     private Operator(String name, int args, boolean assoc, int prec) {
-        StringRepr  = name;
         stringRepr  = new ReadOnlyStringWrapper(name);
         arity       = args;
         associative = assoc;
