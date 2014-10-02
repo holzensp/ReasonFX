@@ -61,7 +61,7 @@ public class Sentence implements Term {
         if(!this.operator.equals(that.operator)) throw e;
         if(this.operands.size() != that.operands.size()) throw e;
         for(int i = 0; i < operands.size(); i++)
-            this.operands.get(i).unifyImpl(unifier, that.operands.get(i));
+            this.operands.get(i).unify(unifier, that.operands.get(i));
     }
     
     @Override public String toString() { return this.show(); }

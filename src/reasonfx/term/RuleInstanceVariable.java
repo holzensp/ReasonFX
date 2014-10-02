@@ -86,7 +86,7 @@ public class RuleInstanceVariable
                 }
             });
         } else {
-            this.get().value.unifyImpl(unifier, wanted);
+            this.get().value.unify(unifier, wanted);
             LOGGER.info("Registering Given dependency");
             this.get().origin.addListener(Given.class, new ChangeListener<Wanted>() {
                 @Override
@@ -97,7 +97,6 @@ public class RuleInstanceVariable
                     unifier.reUnify();
                 }
             });
-            this.get().value.unifyImpl(unifier, wanted);
         }
     }
     

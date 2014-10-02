@@ -31,12 +31,8 @@ public class ElemProp extends ConcreteVariable<ElemProp> {
     @Override
     public void unifyImpl(Given unifier, Term wanted)
             throws UnificationException {
-        //TODO: Figure out why the UnificationVariable check in Term.java doesn't suffice
-        if(ElemProp.class.isAssignableFrom(wanted.getClass()) &&
-                ((ElemProp) wanted).getID() == this.getID()) return;
-        else if(UnificationVariable.class.isAssignableFrom(wanted.getClass()))
-            ((UnificationVariable) wanted).unifyImpl(unifier, this);
-        else
+        if(! ElemProp.class.isAssignableFrom(wanted.getClass()) ||
+                ((ElemProp) wanted).getID() != this.getID()) 
             throw new UnificationException(this,wanted);
     }
 }
