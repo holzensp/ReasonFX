@@ -5,8 +5,6 @@
  */
 package reasonfx.gui;
 
-import java.util.ArrayList;
-import java.util.Collection;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
 import javafx.beans.property.ReadOnlyObjectProperty;
@@ -33,10 +31,11 @@ import reasonfx.rule.Wanted;
  * @author holzensp
  */
 public final class WantedView extends VBox {
-    private final Text      wantedText     = new Text();
-    private final Satisfier emptySatisfier = new EmptySatisfier(wantedText.boundsInParentProperty());
+    private final Text                     wantedText = new Text();
+    private final Satisfier            emptySatisfier = new EmptySatisfier(wantedText.boundsInParentProperty());
     private final ObjectProperty<Satisfier> satisfier = new SimpleObjectProperty();
-    public  final Wanted wanted;
+    
+    private final Wanted wanted;
     
     public WantedView(Wanted w) {
         super();
@@ -90,11 +89,8 @@ public final class WantedView extends VBox {
                     if(source != null) {
                         throw new UnsupportedOperationException("Multiple Gesture Sources");
                     } else if(s.getGiven().unify(wanted)) {
-                        System.out.println("Satisfier is a candidate!");
                         this.setEffect(fx);
                         source = s;
-                    } else {
-                        System.out.println("Satisfier does not unify");
                     }
                 }
             } else if(ty.equals(DragEvent.DRAG_OVER)) {
@@ -109,12 +105,10 @@ public final class WantedView extends VBox {
             } else if(ty.equals(DragEvent.DRAG_DROPPED)) {
                 WantedView.this.satisfy(source);
                 source = null;
-            } else if(ty.equals(DragEvent.DRAG_ENTERED_TARGET)) {
-                System.out.println("Entered Target");
-            } else if(ty.equals(DragEvent.DRAG_EXITED_TARGET)) {
-                System.out.println("Exited Target");
+            } else if(ty.equals(DragEvent.DRAG_ENTERED_TARGET)) { // do nothing
+            } else if(ty.equals(DragEvent.DRAG_EXITED_TARGET)) { // do nothing
             } else
-                System.err.println("unsupportedDragEventType: " + ty + " from " + event);
+                throw new UnsupportedOperationException("DragEventType: " + ty + " from " + event);
             event.consume();
         }
 

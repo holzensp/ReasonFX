@@ -61,7 +61,6 @@ public class RuleView extends Satisfier {
         r.widthProperty().bind(Bindings.createDoubleBinding(() -> t.getBoundsInParent().getWidth(), t.boundsInParentProperty()));
         conclusion.getChildren().addAll(r,t);
         conclusion.setOnDragDetected(this::handle);
-        conclusion.setOnDragDone(this::handle);
         given = new Given(rule.getConclusion());
 
         final Separator s = new Separator();
@@ -73,22 +72,15 @@ public class RuleView extends Satisfier {
         getChildren().add(new VBox(premisses, s, conclusion));
     }
     
-    public void handle(DragEvent event) {
-        EventType<DragEvent> ty = event.getEventType();
-        System.out.println("DragEvent: " + ty);
-        event.consume();
-    }
-    
     public void handle(MouseEvent event) {
         EventType<? extends MouseEvent> ty = event.getEventType();
+        
         if(ty.equals(MouseEvent.DRAG_DETECTED) && event.getButton() == MouseButton.SECONDARY) {
-            System.out.println("onDragDetected");
             Dragboard db = startDragAndDrop(TransferMode.MOVE);
             ClipboardContent content = new ClipboardContent();
             content.putString("myRule");
             db.setContent(content);
-        } else
-            System.out.println("MouseEvent: " + ty);
+        }
         
         event.consume();
     }

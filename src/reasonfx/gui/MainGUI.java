@@ -33,24 +33,18 @@ public class MainGUI extends Application {
     public void start(Stage stage) {
         Group root = new Group();
 
-/*
-        Rectangle envDbg = new Rectangle(200,100,Color.RED);
-        envDbg.addEventFilter(MouseEvent.ANY, event -> {
-            System.out.println(event.getEventType().toString());
-        });
-        envDbg.relocate(10,10);
-        root.getChildren().add(envDbg);
-*/
+        WantedView goal   = new WantedView(new Wanted(termP));
+        RuleView   rAndEL = new RuleView(RuleInstance.instantiate(andEL));
+        RuleView   rAndI  = new RuleView(RuleInstance.instantiate(andI));
+        GivenView  premis = new GivenView(new Given(pAndQ));
         
-        WantedView w = new WantedView(new Wanted(termP));
-        RuleView   r = new RuleView(RuleInstance.instantiate(andEL));
-        RuleView   ri = new RuleView(RuleInstance.instantiate(andI));
-        GivenView  g = new GivenView(new Given(pAndQ));
-        w.relocate(500, 600);
-        r.relocate(500, 400);
-        ri.relocate(600,400);
-        g.relocate(500, 300);
-        root.getChildren().addAll(w, r.getWrapGroup(), ri.getWrapGroup(), g.getWrapGroup());
+        // Yuck!
+        goal.relocate(  500, 600);
+        rAndEL.relocate(500, 400);
+        rAndI.relocate( 600, 400);
+        premis.relocate(500, 300);
+
+        root.getChildren().addAll(goal, rAndEL.getWrapGroup(), rAndI.getWrapGroup(), premis.getWrapGroup());
         
         stage.setTitle("NatDuctGUI");
         stage.setScene(new Scene(root, 1200, 800));
