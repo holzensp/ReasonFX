@@ -52,6 +52,7 @@ public class Given extends SimpleObjectProperty<Wanted> {
             this.set(w);
             return true;
         } catch(UnificationException e) {
+            LOGGER.info("Unification failed: {0}", (Object[]) e.getStackTrace());
             disconnect();
             return false;
         }
@@ -61,7 +62,11 @@ public class Given extends SimpleObjectProperty<Wanted> {
         //TODO: ultimately, this should really be as simple as this.set(null);
         if (!isSatisfying()) return;
 
-        LOGGER.info("Disconnecting {0}", this);
+        String s = "TRACE";
+        for(StackTraceElement e : new Exception("").getStackTrace()) {
+            s += "\n\t" + e;
+        }
+        LOGGER.info("Disconnecting {0} ({1})", this, s);
         
         //Until we reach a better understanding, we need to check the following invariant:
         //When a 'Given' gets disconnected, the univars bound by the corresponding unification must

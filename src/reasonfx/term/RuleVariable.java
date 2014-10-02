@@ -31,7 +31,7 @@ public class RuleVariable implements UnificationVariable<RuleVariable> {
     public int getRuleLocalID()  { return ruleLocalID; }
 
     @Override
-    public void unify(Given unifier, Term wanted) throws UnificationException {
+    public void unifyImpl(Given unifier, Term wanted) throws UnificationException {
         throw new UnsupportedOperationException("RuleVariables may *never* be unified.");
     }
 /*

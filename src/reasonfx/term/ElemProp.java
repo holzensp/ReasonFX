@@ -29,12 +29,13 @@ public class ElemProp extends ConcreteVariable<ElemProp> {
     private ElemProp(String propName) { super(propName); }
 
     @Override
-    public void unify(Given unifier, Term wanted)
+    public void unifyImpl(Given unifier, Term wanted)
             throws UnificationException {
-        if(!
-            (  wanted instanceof ElemProp
-            && ((ElemProp) wanted).getID() == this.getID()
-          ))
+        if(ElemProp.class.isAssignableFrom(wanted.getClass()) &&
+                ((ElemProp) wanted).getID() == this.getID()) return;
+        else if(UnificationVariable.class.isAssignableFrom(wanted.getClass()))
+            ((UnificationVariable) wanted).unifyImpl(unifier, this);
+        else
             throw new UnificationException(this,wanted);
     }
 

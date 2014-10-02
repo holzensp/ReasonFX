@@ -70,7 +70,7 @@ public class TestParser extends Application {
             }
             try {
                 Given g = new Given(Objects.requireNonNull(tests[i][1]));
-                tests[i][0].unify(g, tests[i][1]);
+                tests[i][0].unifyImpl(g, tests[i][1]);
                 results[i] = "Yes";
             } catch (UnificationException ex) {
                 Logger.getLogger(TestParser.class.getName()).log(Level.FINE, null, ex);

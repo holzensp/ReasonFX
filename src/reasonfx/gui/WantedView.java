@@ -5,17 +5,16 @@
  */
 package reasonfx.gui;
 
+import java.util.ArrayList;
+import java.util.Collection;
 import javafx.beans.binding.Bindings;
 import javafx.beans.property.ObjectProperty;
+import javafx.beans.property.ReadOnlyObjectProperty;
 import javafx.beans.property.SimpleObjectProperty;
-import javafx.beans.property.SimpleStringProperty;
-import javafx.beans.property.StringProperty;
 import javafx.event.EventType;
 import javafx.geometry.Bounds;
 import javafx.geometry.Pos;
 import javafx.scene.Group;
-import javafx.scene.Node;
-import javafx.scene.control.Separator;
 import javafx.scene.effect.Effect;
 import javafx.scene.effect.Glow;
 import javafx.scene.input.DragEvent;
@@ -25,8 +24,8 @@ import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
-import javafx.scene.shape.Shape;
 import javafx.scene.text.Text;
+import reasonfx.rule.Given;
 import reasonfx.rule.Wanted;
 
 /**
@@ -34,10 +33,10 @@ import reasonfx.rule.Wanted;
  * @author holzensp
  */
 public final class WantedView extends VBox {
-    private final Shape emptySatisfier = new EmptySatisfier();
-    private final ObjectProperty<Node> satisfier = new SimpleObjectProperty();
-    private final StringProperty content = new SimpleStringProperty("Wanted");
-    private final Wanted wanted;
+    private final Text      wantedText     = new Text();
+    private final Satisfier emptySatisfier = new EmptySatisfier(wantedText.boundsInParentProperty());
+    private final ObjectProperty<Satisfier> satisfier = new SimpleObjectProperty();
+    public  final Wanted wanted;
     
     public WantedView(Wanted w) {
         super();
@@ -50,96 +49,89 @@ public final class WantedView extends VBox {
         final StackPane p = new StackPane();
         
         p.getChildren().add(emptySatisfier);
-        satisfier.addListener((observable, oldValue, newValue) -> {
-            p.getChildren().clear(); //.remove(oldValue);
+        satisfier.addListener((obs, old, newValue) -> {
+            p.getChildren().clear();
+            if(newValue != emptySatisfier) {
+                newValue.getWrapGroup().getChildren().clear();
+                newValue.relocate(0,0);
+            }
             p.getChildren().add(newValue);
         });
                 
-        final Text t = new Text();
-        t.textProperty().bind(content);
-        t.setOnMouseClicked(event -> {
+        wantedText.textProperty().bind(wanted.asTerm().asStringExpression(-1));
+        wantedText.setOnMouseClicked(event -> {
             if( event.getButton().equals(MouseButton.PRIMARY)
              && event.getClickCount() >= 2
              && satisfier.get() != emptySatisfier)
                 disconnect();                
         });
 
-        final Separator s = new Separator();
-        s.maxWidthProperty().bind(Bindings.createDoubleBinding( () ->
-            Math.max( t.getBoundsInParent().getWidth()
-                    , p.getBoundsInParent().getWidth()),
-            t.boundsInParentProperty(),
-            p.boundsInParentProperty()));
-
         setAlignment(Pos.CENTER);
-        getChildren().addAll(p,s,t);
+        getChildren().addAll(p,wantedText);
     }
     
-    private class EmptySatisfier extends Rectangle {
+    private class EmptySatisfier extends Satisfier {
         private final Effect fx = new Glow();
+        private Satisfier source = null;
         
-        public EmptySatisfier() {
-            super(100, 20, Color.LAVENDER);
+        public EmptySatisfier(ReadOnlyObjectProperty<Bounds> bs) {
+            super();
+            Rectangle r = new Rectangle(100, 10, Color.LAVENDER);
+            r.widthProperty().bind(Bindings.createDoubleBinding(() -> bs.get().getWidth(), bs));
+            getChildren().add(r);
             addEventFilter(DragEvent.ANY, this::handle);
         }
 
         public void handle(DragEvent event) {
             EventType<DragEvent> ty = event.getEventType();
-            final String msg;
             if(ty.equals(DragEvent.DRAG_ENTERED)) {
-                msg = "onDragEntered";
-                this.setEffect(fx);
-            } else if(ty.equals(DragEvent.DRAG_OVER)) {
-                msg = "onDragOver";
-                if(isFromGiven(event) || isFromRule(event)) {
-                    event.acceptTransferModes(TransferMode.MOVE);
+                if(Satisfier.class.isAssignableFrom(event.getGestureSource().getClass())) {
+                    Satisfier s = (Satisfier) event.getGestureSource();
+                    if(source != null) {
+                        throw new UnsupportedOperationException("Multiple Gesture Sources");
+                    } else if(s.getGiven().unify(wanted)) {
+                        System.out.println("Satisfier is a candidate!");
+                        this.setEffect(fx);
+                        source = s;
+                    } else {
+                        System.out.println("Satisfier does not unify");
+                    }
                 }
+            } else if(ty.equals(DragEvent.DRAG_OVER)) {
+                if(event.getGestureSource() == source)
+                    event.acceptTransferModes(TransferMode.ANY);
             } else if(ty.equals(DragEvent.DRAG_EXITED)) {
-                msg = "onDragExited";
-                this.setEffect(null);
+                if(null != source) {
+                    source.getGiven().disconnect();
+                    source = null;
+                    this.setEffect(null);
+                }
             } else if(ty.equals(DragEvent.DRAG_DROPPED)) {
-                msg = "onDragDropped";
-                if(isFromGiven(event)) {
-                    WantedView.this.satisfy((GivenView) event.getGestureSource());
-                } else if (isFromRule(event)) {
-                    WantedView.this.satisfy((RuleView) event.getGestureSource());
-                } else
-                    throw new UnsupportedOperationException("WantedView received DRAG_DROPPED from something other than GivenView or RuleView");
+                WantedView.this.satisfy(source);
+                source = null;
+            } else if(ty.equals(DragEvent.DRAG_ENTERED_TARGET)) {
+                System.out.println("Entered Target");
+            } else if(ty.equals(DragEvent.DRAG_EXITED_TARGET)) {
+                System.out.println("Exited Target");
             } else
-                msg = "unsupportedDragEventType";
-            System.out.println(msg);
+                System.err.println("unsupportedDragEventType: " + ty + " from " + event);
             event.consume();
         }
+
+        @Override public void popOut() {}
+        @Override public Group getWrapGroup() { throw new UnsupportedOperationException("Not wrapped in Group"); }
+        @Override public Given getGiven() { throw new UnsupportedOperationException("Does not contain a given"); }
     }
     
-    private boolean isFromGiven(DragEvent e) {
-        return GivenView.class
-            .isAssignableFrom(
-                e.getGestureSource().getClass()
-            );
+    public void satisfy(Satisfier s) {
+        satisfier.set(s);
     }
-    
-    private boolean isFromRule(DragEvent e) {
-        return RuleView.class
-            .isAssignableFrom(
-                e.getGestureSource().getClass()
-            );
-    }
-    
-    public void satisfy(GivenView g) { satisfier.set(g); }
-    public void satisfy(RuleView  r) { satisfier.set(r); }
     
     public void disconnect() {
-        Node n = satisfier.get();
+        Satisfier n = satisfier.get();
         if(null == n || emptySatisfier == n) return;
-        Bounds nbs = n.getBoundsInParent();
+        n.popOut();
         
         satisfier.set(emptySatisfier);
-        assert(Group.class.isAssignableFrom(this.getParent().getClass()));
-        Bounds pbs = this.getBoundsInParent();
-       
-        n.relocate( pbs.getMinX() + (pbs.getWidth() - nbs.getWidth())/2
-                  , pbs.getMinY() - nbs.getHeight() - 20);
-        ((Group)this.getParent()).getChildren().add(n);
     }
 }

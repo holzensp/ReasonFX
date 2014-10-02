@@ -56,29 +56,6 @@ public class RuleInstanceVariable
     public void    ununify()    { LOGGER.info("UNbinding {0}", this); this.set(null); }
     public boolean isUnified()  { return null != this.get(); }
     public Term    getBinding() { return this.get().value; }
- 
-/*
-    @Override
-    public void prettyPrint(StringBuilder result, int prec, boolean debugging) {
-        if(debugging) {
-            if(isUnified()) result.append('(');
-            result
-                .append(UnificationVariable.mkString(prettyID))
-                .append('[').append(String.valueOf(getID())).append(']');
-            if(isUnified()) {
-                result.append(" => ");
-                this.get().value.prettyPrint(result, -1, debugging);
-                result.append(')');
-            }
-        } else {
-            if(isUnified())
-                this.get().value.prettyPrint(result,prec,debugging);
-            else {
-                result.append(UnificationVariable.mkString(prettyID));
-            }
-        }
-    }
- */
     
     @Override public StringExpression asStringExpression(int prec) {
         //TODO: FIX THIS!
@@ -91,7 +68,7 @@ public class RuleInstanceVariable
     }
 
     @Override
-    public void unify(Given unifier, Term wanted) throws UnificationException {
+    public void unifyImpl(Given unifier, Term wanted) throws UnificationException {
         if(!isUnified()) {
             LOGGER.info("Binding {0} to {1}", this.dbgString(), wanted.dbgString());
             this.set(new Binding(wanted, unifier));
@@ -109,7 +86,7 @@ public class RuleInstanceVariable
                 }
             });
         } else {
-            this.get().value.unify(unifier, wanted);
+            this.get().value.unifyImpl(unifier, wanted);
             LOGGER.info("Registering Given dependency");
             this.get().origin.addListener(Given.class, new ChangeListener<Wanted>() {
                 @Override
@@ -121,7 +98,7 @@ public class RuleInstanceVariable
                 }
             });
             //this.get().origin.register(unifier);
-            this.get().value.unify(unifier, wanted);
+            this.get().value.unifyImpl(unifier, wanted);
         }
     }
     
