@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<?import java.lang.*?>
+<?import java.util.*?>
+<?import javafx.scene.*?>
+<?import javafx.scene.control.*?>
+<?import javafx.scene.layout.*?>
+<?import javafx.scene.shape.*?>
+<?import javafx.scene.paint.*?>
+<?import nl.utwente.cs.caes.tactile.control.*?>
+<!--<?import tactiledemo.*?>-->
+<!--<?import reasonfx.gui.*?>--> 
+<?import reasonfx.tactileGui.*?> 
+
+<?import java.net.*?>
+<?import javafx.scene.text.*?>
+<?import reasonfx.rule.*?>
+
+
+
+
+<TactilePane xmlns:fx="http://javafx.com/fxml/1" bordersCollide="true" fx:id="root" 
+           prefHeight="600" prefWidth="800"
+           proximityThreshold="40" >
+    
+ <TextItem text="p v q" layoutX="50" layoutY="250" TactilePane.slideOnRelease="true" TactilePane.tracker="$root">
+        <font><Font size="40" name="ttttt" /></font>
+    </TextItem>
+   <TextItem text="p" layoutX="70" layoutY="100"  TactilePane.slideOnRelease="true" TactilePane.tracker="$root">
+        <font><Font size="40" name="ttttt" /></font>
+    </TextItem>
+    <TextItem text="q" layoutX="150" layoutY="50"  TactilePane.slideOnRelease="true" TactilePane.tracker="$root">
+        <font><Font size="40" name="ttttt" /></font>
+    </TextItem>
+    <TextItem text="p" layoutX="100" layoutY="150"  TactilePane.slideOnRelease="true" TactilePane.tracker="$root">
+        <font><Font size="60" name="ttttt" /></font>
+    </TextItem>
+    <WantedView WantedView.margin="30" TactilePane.slideOnRelease="true" TactilePane.tracker="$root"/>   
+    
+    <!--    <ColorItem color="#ff0000" layoutX="50" layoutY="50"  TactilePane.slideOnRelease="true" TactilePane.tracker="$root"/>
+    <ColorItem color="#ff0000" layoutX="150" layoutY="50"  TactilePane.slideOnRelease="true" TactilePane.tracker="$root"/>-->
+
+    <!--<ColorSlotPane layoutX="10" layoutY="400" TactilePane.slideOnRelease="true" tactilePane="$root"/>-->
+</TactilePane>
