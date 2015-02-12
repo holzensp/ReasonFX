@@ -26,7 +26,7 @@ import javafx.scene.text.Text;
 import reasonfx.rule.Given;
 import reasonfx.rule.RuleInstance;
 import reasonfx.rule.Wanted;
-import reasonfx.util.Draggable;
+//import reasonfx.util.Draggable;
 
 /**
  *
@@ -43,8 +43,8 @@ public class RuleView extends Satisfier {
         super();
         rule = ri;
         
-        Draggable d = new Draggable(this);
-        embedding = d.getWrapGroup();
+        //Draggable d = new Draggable(this);
+        embedding = new Group(this); //d.getWrapGroup();
 
         /* Premisses part */
         premisses.setSpacing(10);

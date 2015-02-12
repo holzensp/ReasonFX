@@ -19,7 +19,6 @@ import javafx.scene.paint.Color;
 import javafx.scene.shape.Rectangle;
 import javafx.scene.text.Text;
 import reasonfx.rule.Given;
-import reasonfx.util.Draggable;
 
 /**
  *
@@ -44,19 +43,19 @@ public class GivenView extends Satisfier {
         setOnDragDone(this::handle);
         setEffect(new DropShadow());
         
-        Draggable d = new Draggable(this);
-        embedding = d.getWrapGroup();
+        //Draggable d = new Draggable(this);
+        embedding = new Group(this);//d.getWrapGroup();
     }
 
     public void handle(DragEvent event) {
         EventType<DragEvent> ty = event.getEventType();
         System.out.println("DragEvent: " + ty);
-        event.consume();
+        //event.consume();
     }
     
     public void handle(MouseEvent event) {
         EventType<? extends MouseEvent> ty = event.getEventType();
-        if(ty.equals(MouseEvent.DRAG_DETECTED) && event.getButton() == MouseButton.SECONDARY) {
+        if(ty.equals(MouseEvent.DRAG_DETECTED) && event.getButton() == MouseButton.PRIMARY) {
             Dragboard db = startDragAndDrop(TransferMode.MOVE);
             ClipboardContent content = new ClipboardContent();
             content.putString("Given");
@@ -64,7 +63,7 @@ public class GivenView extends Satisfier {
         } else
             System.out.println("MouseEvent: " + ty);
         
-        event.consume();
+        //event.consume();
     }
     
     @Override public Group getWrapGroup() { return embedding; }
